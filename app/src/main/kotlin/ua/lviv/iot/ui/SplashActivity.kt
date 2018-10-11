@@ -1,4 +1,4 @@
-package ua.lviv.iot
+package ua.lviv.iot.ui
 
 import android.content.Intent
 import android.os.Bundle

@@ -1,6 +1,7 @@
-package ua.lviv.iot
+package ua.lviv.iot.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -10,19 +11,31 @@ import com.google.android.gms.maps.model.LatLng
 import ua.lviv.iot.utils.*
 import android.content.res.Resources
 import android.util.Log
+import android.widget.Button
 import com.google.android.gms.maps.model.MapStyleOptions
+import ua.lviv.iot.R
+import ua.lviv.iot.ui.quests.QuestsActivity
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val mTAG = "MainActivity"
 
     private lateinit var mMapView: MapView
+    private lateinit var mQuestsBtn: Button
+    private lateinit var mBalanceBtn: Button
+    private lateinit var mProfileBtn: Button
+    private lateinit var mRatingBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mMapView = findViewById(R.id.mapView)
+        mMapView = findViewById(R.id.mapview_main)
+        mQuestsBtn = findViewById(R.id.btn_main_quests)
+        mBalanceBtn = findViewById(R.id.btn_main_balance)
+        mProfileBtn = findViewById(R.id.btn_main_profile)
+        mRatingBtn = findViewById(R.id.btn_main_rating)
+
         mMapView.onCreate(savedInstanceState)
         mMapView.onResume()
         try {
@@ -32,6 +45,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         mMapView.getMapAsync(this)
+
+        mQuestsBtn.setOnClickListener {
+            startActivity(Intent(this, QuestsActivity::class.java))
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {

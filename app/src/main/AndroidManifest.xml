@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:theme="@style/SplashTheme"
             android:noHistory="true">
             <intent-filter>
@@ -22,8 +22,11 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name=".ui.quests.QuestsActivity"
+            android:parentActivityName=".ui.MainActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

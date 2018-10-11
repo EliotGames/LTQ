@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
     <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+        android:id="@+id/mapview_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
-</android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_main_quests"
+            style="@style/DefaultButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:text="Quests" />
+
+        <Button
+            android:id="@+id/btn_main_rating"
+            style="@style/DefaultButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:text="Rating" />
+
+        <Button
+            android:id="@+id/btn_main_balance"
+            style="@style/DefaultButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:text="Balance" />
+
+        <Button
+            android:id="@+id/btn_main_profile"
+            style="@style/DefaultButton"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:text="Profile" />
+    </LinearLayout>
+
+</RelativeLayout>

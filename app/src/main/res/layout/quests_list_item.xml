@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_quests_item"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/iv_quests_item"
+        android:layout_width="164dp"
+        android:layout_height="match_parent"
+        android:contentDescription="Quest image"
+        android:scaleType="fitStart"
+        android:src="@drawable/quests_test_image" />
+
+    <TextView
+        android:id="@+id/tv_quests_item_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:lines="2"
+        android:text="Quest name"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_quests_item" />
+
+    <TextView
+        android:id="@+id/tv_quests_item_distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="24 km"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/iv_quests_item"
+        app:layout_constraintTop_toBottomOf="@id/tv_quests_item_title" />
+
+</android.support.constraint.ConstraintLayout>
