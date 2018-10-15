@@ -26,4 +26,10 @@
         <item name="android:minWidth">160dp</item>
     </style>
 
+    <style name="UserTitleTextview">
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

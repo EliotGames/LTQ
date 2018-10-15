@@ -49,6 +49,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mQuestsBtn.setOnClickListener {
             startActivity(Intent(this, QuestsActivity::class.java))
         }
+
+        mBalanceBtn.setOnClickListener { startActivity(Intent(this, BalanceActivity::class.java)) }
+        mProfileBtn.setOnClickListener { startActivity(Intent(this, ProfileActivity::class.java)) }
+        mRatingBtn.setOnClickListener { startActivity(Intent(this, RatingActivity::class.java)) }
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {

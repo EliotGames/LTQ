@@ -47,5 +47,6 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
     // Recycle view
     implementation "com.android.support:recyclerview-v7:$android_support_version"
-
+    // Circle imageView
+    implementation "de.hdodenhof:circleimageview:2.2.0"
 }
