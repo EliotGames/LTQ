@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_quests.*
 import ua.lviv.iot.R
-import ua.lviv.iot.model.Quest
+import ua.lviv.iot.model.map.Quest
 
 
 class QuestsActivity : AppCompatActivity() {
@@ -14,8 +14,6 @@ class QuestsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quests)
-
-        //actionBar.title = "Choose quest"
 
         quests = QuestsManager.generateQuestsList()
         rv_quests_recent.layoutManager = LinearLayoutManager(this)

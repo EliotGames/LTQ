@@ -7,7 +7,12 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
-
+    
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    
     <!-- Activities' themes -->
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">

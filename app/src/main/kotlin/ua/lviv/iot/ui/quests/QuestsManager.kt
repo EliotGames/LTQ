@@ -1,6 +1,6 @@
 package ua.lviv.iot.ui.quests
 
-import ua.lviv.iot.model.Quest
+import ua.lviv.iot.model.map.Quest
 
 class QuestsManager {
     companion object {
@@ -17,14 +17,14 @@ class QuestsManager {
                     "amet interdum. Sed faucibus ante nibh, non tempus turpis rutrum in. " +
                     "Aliquam vulputate felis non orci pulvinar, non lacinia ligula semper."
 
-            quests.add(Quest("First Quest", defaultText, imageUrl))
-            quests.add(Quest("Second Quest", defaultText, imageUrl))
-            quests.add(Quest("Third Quest", defaultText, imageUrl))
-            quests.add(Quest("Fourth Quest", defaultText, imageUrl))
-            quests.add(Quest("Fifth Quest", defaultText, imageUrl))
-            quests.add(Quest("Sixth Quest", defaultText, imageUrl))
-            quests.add(Quest("Seventh Quest", defaultText, imageUrl))
-            quests.add(Quest("Eighth Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"First Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Second Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Third Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Fourth Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Fifth Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Sixth Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Seventh Quest", defaultText, imageUrl))
+            quests.add(Quest( 0,"Eighth Quest", defaultText, imageUrl))
 
             return quests
         }

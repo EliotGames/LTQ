@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/colorPrimary"
+    android:theme="@style/AppTheme.NoActionBar">
+
+    <ImageView
+        android:id="@+id/iv_login_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        app:srcCompat="@drawable/all_logo" />
+
+    <TextView
+        android:id="@+id/tb_login_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/iv_login_logo"
+        android:layout_centerHorizontal="true"
+        android:text="Lviv City Quest"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+
+    <TextView
+        android:id="@+id/tv_login_sign_with"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tb_login_app_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Sign in with:"
+        android:textColor="@android:color/white"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/linearlayout_login_fb_google"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_login_sign_with">
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/fb_login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/btn_login_facebook"
+            style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:src="@drawable/login_facebook_button" />
+
+        <ImageButton
+            android:id="@+id/btn_login_google"
+            style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:src="@drawable/login_google_button" />
+
+    </LinearLayout>
+</RelativeLayout>

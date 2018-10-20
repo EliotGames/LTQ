@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.quests_list_item.view.*
 import ua.lviv.iot.R
-import ua.lviv.iot.model.Quest
+import ua.lviv.iot.model.map.Quest
 
 class QuestsAdapter(val items: ArrayList<Quest>, val context: Context) :
         RecyclerView.Adapter<ViewHolder>() {
@@ -22,10 +22,10 @@ class QuestsAdapter(val items: ArrayList<Quest>, val context: Context) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.tvQuestsTitle.text = items[position].title
+        holder.tvQuestsTitle.text = items[position].questName
 
         holder.mainLayout.setOnClickListener({
-            Toast.makeText(context, items[position].title, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, items[position].questName, Toast.LENGTH_SHORT).show()
         })
     }
 }
