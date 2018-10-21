@@ -15,10 +15,10 @@ class FirebaseDataManager {
         fun onSuccess()
     }
 
-    public interface DataRetrieveListenerForQuestCategory {
+    /*public interface DataRetrieveListenerForQuestCategory {
         fun onSuccess(questCategoryList: List<QuestCategory>)
         fun onError(databaseError: DatabaseError)
-    }
+    }*/
 
     public interface DataRetrieveListenerForQuest {
         fun onSuccess(questStructureList: List<Quest>)
@@ -40,7 +40,7 @@ class FirebaseDataManager {
         fun onError()
     }
 
-    fun categoriesNamesListRetriever(listener: DataRetrieveListenerForQuestCategory) {
+    /*fun categoriesNamesListRetriever(listener: DataRetrieveListenerForQuestCategory) {
         firebaseDatabase.getReference("categories").addListenerForSingleValueEvent(object : ValueEventListener() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val questCategoryList = ArrayList<QuestCategory>()
@@ -54,10 +54,10 @@ class FirebaseDataManager {
                 listener.onError(databaseError)
             }
         })
-    }
+    }*/
 
     fun questsRetriever(listener: DataRetrieveListenerForQuest) {
-        firebaseDatabase.getReference("quest").addListenerForSingleValueEvent(object : ValueEventListener() {
+        firebaseDatabase.getReference("quest").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val questStructureList = ArrayList<Quest>()
                 for (dataSpanshot1 in dataSnapshot.children) {
@@ -84,7 +84,7 @@ class FirebaseDataManager {
         return foundQuests
     }
 
-    fun locationsListRetriever(listener: DataRetrieveListenerForLocationsStructure) {
+    /*fun locationsListRetriever(listener: DataRetrieveListenerForLocationsStructure) {
         firebaseDatabase.getReference("locations").addListenerForSingleValueEvent(object : ValueEventListener() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val locationsList = ArrayList<Location>()
@@ -98,7 +98,7 @@ class FirebaseDataManager {
                 listener.onError(databaseError)
             }
         })
-    }
+    }*/
 
     fun findLocationsById() {}
 
@@ -116,7 +116,7 @@ class FirebaseDataManager {
     }
 
     fun checkIfUserIsWritten(uId: String, listener: UserWritingListener) {
-        firebaseDatabase.reference.child("userData").child(uId).addListenerForSingleValueEvent(object : ValueEventListener() {
+        firebaseDatabase.reference.child("userData").child(uId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val userInformation: User
                 userInformation = dataSnapshot.getValue(User::class.java)!!
@@ -140,7 +140,7 @@ class FirebaseDataManager {
     }
 
     fun getCurrentUserData(uId: String, listener: DataRetrieveListenerForUser) {
-        firebaseDatabase.reference.child("userData").child(uId).addListenerForSingleValueEvent(object : ValueEventListener() {
+        firebaseDatabase.reference.child("userData").child(uId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val userInformation: User = dataSnapshot.getValue(User::class.java)!!
                 listener.onSuccess(userInformation)

@@ -38,8 +38,6 @@ class LoginActivity : AppCompatActivity(), LoginNavigator {
     lateinit var firebaseLoginManager: FirebaseLoginManager
     lateinit var firebaseDataManager: FirebaseDataManager
 
-    var isNewUser = true
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -79,10 +77,10 @@ class LoginActivity : AppCompatActivity(), LoginNavigator {
                 googleSingInAccount = task.getResult(ApiException::class.java)!!
                 val userLoginListener = object : FirebaseLoginManager.UserLoginListener {
                     override fun onSuccess() {
-                        if (isNewUser) {
+                        if (FirebaseLoginManager.isNewUser) {
                             firebaseDataManager.writeCurrentUserData(firebaseLoginManager.currentUser?.uid!!,
                                     User(LoginType.GOOGLE, googleSingInAccount.displayName!!, googleSingInAccount.email!!),
-                                    FirebaseDataManager.UserWritingListener() {
+                                   object : FirebaseDataManager.UserWritingListener {
                                 override fun onSuccess() {
                                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                                 }
@@ -90,7 +88,7 @@ class LoginActivity : AppCompatActivity(), LoginNavigator {
                                 override fun onError() {
                                     Toast.makeText(this@LoginActivity, "Something wrong with your sign in, please try again", Toast.LENGTH_SHORT).show()
                                     val user = firebaseLoginManager.currentUser!!
-                                    firebaseLoginManager.logout(FirebaseLoginManager.UserLoginListener() {
+                                    firebaseLoginManager.logout(object : FirebaseLoginManager.UserLoginListener {
                                         override fun onSuccess() {
 
                                         }
@@ -98,7 +96,7 @@ class LoginActivity : AppCompatActivity(), LoginNavigator {
 
                                         }
                                     })
-                                    firebaseLoginManager.deleteUser(user, FirebaseLoginManager.UserLoginListener() {
+                                    firebaseLoginManager.deleteUser(user, object : FirebaseLoginManager.UserLoginListener {
                                         override fun onSuccess() {
 
                                         }

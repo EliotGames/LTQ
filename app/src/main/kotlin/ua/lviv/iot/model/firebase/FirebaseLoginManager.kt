@@ -22,18 +22,18 @@ class FirebaseLoginManager {
 
     fun registerUser(email: String, password: String, listener: UserLoginListener) {
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnFailureListener(OnFailureListener { e -> listener.onError(e.localizedMessage) })
-                .addOnSuccessListener(OnSuccessListener<AuthResult> { authResult ->
+                .addOnFailureListener({ e -> listener.onError(e.localizedMessage) })
+                .addOnSuccessListener({ authResult ->
                     val isNewUser = authResult.getAdditionalUserInfo().isNewUser()
-                    LoginActivity.setIsNewUser(isNewUser)
+                    FirebaseLoginManager.setIsNewUser(isNewUser)
                     listener.onSuccess()
                 })
     }
 
     fun loginUser(email: String, password: String, listener: UserLoginListener) {
         auth.signInWithEmailAndPassword(email, password)
-                .addOnFailureListener(OnFailureListener { e -> listener.onError(e.localizedMessage) })
-                .addOnSuccessListener(OnSuccessListener<Any> { listener.onSuccess() })
+                .addOnFailureListener({ e -> listener.onError(e.localizedMessage) })
+                .addOnSuccessListener({ listener.onSuccess() })
     }
 
     fun logout(listener: UserLoginListener) {
@@ -48,23 +48,23 @@ class FirebaseLoginManager {
 
     fun deleteUser(user: FirebaseUser, listener: UserLoginListener) {
         user.delete()
-                .addOnSuccessListener(OnSuccessListener<Void> { listener.onSuccess() })
-                .addOnFailureListener(OnFailureListener { e -> listener.onError(e.localizedMessage) })
+                .addOnSuccessListener({ listener.onSuccess() })
+                .addOnFailureListener({ e -> listener.onError(e.localizedMessage) })
     }
 
 
     fun firebaseAuthWithGoogle(credential: AuthCredential, listener: UserLoginListener) {
 
         auth.signInWithCredential(credential)
-                .addOnSuccessListener(OnSuccessListener<Any> { authResult ->
+                .addOnSuccessListener({ authResult ->
                     if (authResult.getAdditionalUserInfo().isNewUser()) {
-                        LoginActivity.setIsNewUser(true)
+                        FirebaseLoginManager.setIsNewUser(true)
                     } else {
-                        LoginActivity.setIsNewUser(false)
+                        FirebaseLoginManager.setIsNewUser(false)
                     }
                     listener.onSuccess()
                 })
-                .addOnFailureListener(OnFailureListener { listener.onError("Cannot sing in with your Google account") })
+                .addOnFailureListener({ listener.onError("Cannot sing in with your Google account") })
     }
 
     interface UserLoginListener {
@@ -75,5 +75,13 @@ class FirebaseLoginManager {
 
     companion object {
         lateinit var auth: FirebaseAuth
+
+        var isNewUser = true
+        get() = isNewUser
+
+        fun setIsNewUser(isNewUser: Boolean) {
+            FirebaseLoginManager.isNewUser = isNewUser
+        }
     }
+
 }
