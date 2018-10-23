@@ -17,6 +17,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import ua.lviv.iot.R
+import ua.lviv.iot.ui.profile.ProfileActivity
 import ua.lviv.iot.ui.quests.QuestsMenuActivity
 
 
