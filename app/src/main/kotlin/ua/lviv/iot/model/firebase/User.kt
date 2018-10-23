@@ -5,24 +5,15 @@ class User {
     var email: String? = null
     var sex: UserSex? = null
     var points: Int? = null
-    var googleEmail: String? = null
-    var facebookLink: String? = null
 
     // default
     constructor()
 
     // for google and facebook sign up
-    constructor(accountType: LoginType, name: String, account: String) {
+    constructor(name: String, account: String) {
         this.name = name
         this.points = 0
-        when (accountType) {
-            LoginType.GOOGLE -> {
-                this.googleEmail = account
-            }
-            LoginType.FACEBOOK -> {
-                this.facebookLink = account
-            }
-        }
+        this.email = account
         this.sex = UserSex.CHOOSE_SEX
     }
 
@@ -30,7 +21,6 @@ class User {
     constructor(name: String, id: String, sex: UserSex) {
         this.name = name
         this.points = 0
-        facebookLink = id
-        this.sex = sex
+        this.sex = UserSex.CHOOSE_SEX
     }
 }

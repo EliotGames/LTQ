@@ -1,44 +1,32 @@
 package ua.lviv.iot.model.firebase
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.content.Intent
+import android.provider.Settings.Global.getString
+import android.support.v4.content.ContextCompat.startActivity
+import android.util.Log
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.*
+import ua.lviv.iot.R
+import ua.lviv.iot.ui.MainActivity
 import ua.lviv.iot.ui.login.LoginActivity
 
 
 class FirebaseLoginManager {
     private val firebaseDataManager = FirebaseDataManager()
+    private val firebaseAuth = FirebaseAuth.getInstance()
 
     val currentUser: FirebaseUser?
-        get() = auth.currentUser
+        get() = firebaseAuth.currentUser
 
-    val isUserLoggedIn: Boolean
-        get() = auth.currentUser != null
-
-    init {
-        auth = FirebaseAuth.getInstance()
-
-    }
-
-    fun registerUser(email: String, password: String, listener: UserLoginListener) {
-        auth.createUserWithEmailAndPassword(email, password)
-                .addOnFailureListener({ e -> listener.onError(e.localizedMessage) })
-                .addOnSuccessListener({ authResult ->
-                    val isNewUser = authResult.getAdditionalUserInfo().isNewUser()
-                    FirebaseLoginManager.setIsNewUser(isNewUser)
-                    listener.onSuccess()
-                })
-    }
-
-    fun loginUser(email: String, password: String, listener: UserLoginListener) {
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnFailureListener({ e -> listener.onError(e.localizedMessage) })
-                .addOnSuccessListener({ listener.onSuccess() })
-    }
 
     fun logout(listener: UserLoginListener) {
         try {
-            auth.signOut()
+            firebaseAuth.signOut()
             listener.onSuccess()
         } catch (e: Exception) {
             listener.onError(e.localizedMessage)
@@ -48,23 +36,26 @@ class FirebaseLoginManager {
 
     fun deleteUser(user: FirebaseUser, listener: UserLoginListener) {
         user.delete()
-                .addOnSuccessListener({ listener.onSuccess() })
-                .addOnFailureListener({ e -> listener.onError(e.localizedMessage) })
+                .addOnSuccessListener { listener.onSuccess() }
+                .addOnFailureListener { e -> listener.onError(e.localizedMessage) }
     }
 
 
-    fun firebaseAuthWithGoogle(credential: AuthCredential, listener: UserLoginListener) {
+    fun firebaseAuthWithGoogle(account: GoogleSignInAccount, listener: UserLoginListener) {
 
-        auth.signInWithCredential(credential)
-                .addOnSuccessListener({ authResult ->
-                    if (authResult.getAdditionalUserInfo().isNewUser()) {
+        Log.i("TAG", "Authenticating user with firebase.")
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+
+        firebaseAuth.signInWithCredential(credential)
+                .addOnSuccessListener { authResult ->
+                    if (authResult.additionalUserInfo.isNewUser) {
                         FirebaseLoginManager.setIsNewUser(true)
                     } else {
                         FirebaseLoginManager.setIsNewUser(false)
                     }
                     listener.onSuccess()
-                })
-                .addOnFailureListener({ listener.onError("Cannot sing in with your Google account") })
+                }
+                .addOnFailureListener { listener.onError("Cannot sing in with your Google account") }
     }
 
     interface UserLoginListener {
@@ -76,8 +67,12 @@ class FirebaseLoginManager {
     companion object {
         lateinit var auth: FirebaseAuth
 
+        //value is user registered
+        fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }
+
+        var _isUserLoggedIn = MutableLiveData<Boolean>().default(false)
+
         var isNewUser = true
-        get() = isNewUser
 
         fun setIsNewUser(isNewUser: Boolean) {
             FirebaseLoginManager.isNewUser = isNewUser

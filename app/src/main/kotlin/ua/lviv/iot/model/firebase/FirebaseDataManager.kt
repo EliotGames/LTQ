@@ -155,4 +155,6 @@ class FirebaseDataManager {
     fun writeUserPoints(uId: String, points: Int) {
         firebaseDatabase.reference.child("userData").child(uId).child("points").setValue(points)
     }
+
+
 }

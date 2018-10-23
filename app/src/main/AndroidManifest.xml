@@ -29,7 +29,7 @@
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.ProfileActivity"
+            android:name=".ui.profile.ProfileActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity

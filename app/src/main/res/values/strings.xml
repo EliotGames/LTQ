@@ -3,4 +3,7 @@
     <string name="google_maps_api_key">AIzaSyAJUx3efU82TyEdQspWgupd9HRS25B3z-U</string>
     <string name="google_sign_in_token">192781036687-ku6jlb4rn7v41h1libsovis77uu61jd3.apps.googleusercontent.com</string>
 
+    <!--Network status-->
+    <string name="network_failed">Connection failed! Please, check yout network</string>
+
 </resources>
