@@ -1,5 +1,7 @@
 package ua.lviv.iot.model.map
 
+import java.util.*
+
 /**
  * Class that represents quest as a object
  * @property questID the unique identifier of the quest
@@ -18,4 +20,4 @@ data class Quest constructor(
         val parentCategoryID: Int = 0,
         val distance: Double = 0.0,
         val imageViewId: Int = 0
-)
+) : Observable()

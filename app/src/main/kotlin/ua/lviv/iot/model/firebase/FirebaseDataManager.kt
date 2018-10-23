@@ -1,5 +1,6 @@
 package ua.lviv.iot.model.firebase
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -19,7 +20,7 @@ class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = F
     }*/
 
     public interface DataRetrieveListenerForQuest {
-        fun onSuccess(questStructureList: List<Quest>)
+        fun onSuccess(questStructureList: List<Quest>, context: Context)
         fun onError(databaseError: DatabaseError)
     }
 
@@ -54,14 +55,14 @@ class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = F
         })
     }*/
 
-    fun questsRetriever(listener: DataRetrieveListenerForQuest) {
+    fun questsRetriever(context: Context, listener: DataRetrieveListenerForQuest) {
         firebaseDatabase.getReference("quest").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val questStructureList = ArrayList<Quest>()
                 for (dataSpanshot1 in dataSnapshot.children) {
                     questStructureList.add(dataSpanshot1.getValue(Quest::class.java)!!)
                 }
-                listener.onSuccess(questStructureList)
+                listener.onSuccess(questStructureList, context)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
