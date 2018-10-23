@@ -8,9 +8,7 @@ import com.google.firebase.database.ValueEventListener
 import ua.lviv.iot.model.map.Location
 import ua.lviv.iot.model.map.Quest
 
-class FirebaseDataManager {
-    private val firebaseDatabase = FirebaseDatabase.getInstance()
-
+class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()){
     interface DataRetrieveListener {
         fun onSuccess()
     }

@@ -14,7 +14,6 @@ import android.util.Log
 import android.widget.Button
 import com.google.android.gms.maps.model.MapStyleOptions
 import ua.lviv.iot.R
-import ua.lviv.iot.ui.profile.ProfileActivity
 import ua.lviv.iot.ui.quests.QuestsActivity
 
 
