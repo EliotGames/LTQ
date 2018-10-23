@@ -10,10 +10,10 @@ package ua.lviv.iot.model.map
  * @property distance the length of the quest (in kilometers)
  * @property imageViewId ???
  */
-data class Quest(
-        val questID: Int,
-        val questName: String,
-        val description: String,
+data class Quest constructor(
+        val questID: Int = 0,
+        val questName: String = "",
+        val description: String = "",
         val imageUrl: String = "",
         val parentCategoryID: Int = 0,
         val distance: Double = 0.0,

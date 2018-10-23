@@ -13,7 +13,12 @@ import android.content.res.Resources
 import android.util.Log
 import android.widget.Button
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.firebase.FirebaseApp
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import ua.lviv.iot.R
+import ua.lviv.iot.model.firebase.FirebaseDataManager
+import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.ui.quests.QuestsActivity
 
 
@@ -28,6 +33,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
         setContentView(R.layout.activity_main)
 
         mMapView = findViewById(R.id.mapview_main)
@@ -53,6 +59,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mBalanceBtn.setOnClickListener { startActivity(Intent(this, BalanceActivity::class.java)) }
         mProfileBtn.setOnClickListener { startActivity(Intent(this, ProfileActivity::class.java)) }
         mRatingBtn.setOnClickListener { startActivity(Intent(this, RatingActivity::class.java)) }
+
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {

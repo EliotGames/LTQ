@@ -24,9 +24,9 @@ class QuestsAdapter(val items: ArrayList<Quest>, val context: Context) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.tvQuestsTitle.text = items[position].questName
 
-        holder.mainLayout.setOnClickListener({
+        holder.mainLayout.setOnClickListener {
             Toast.makeText(context, items[position].questName, Toast.LENGTH_SHORT).show()
-        })
+        }
     }
 }
 
