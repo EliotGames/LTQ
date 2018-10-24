@@ -1,5 +1,6 @@
 package ua.lviv.iot.ui.login
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount

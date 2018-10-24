@@ -58,6 +58,10 @@ class FirebaseLoginManager {
                 .addOnFailureListener { listener.onError("Cannot sing in with your Google account") }
     }
 
+    fun isUserLoggedIn() {
+        FirebaseLoginManager._isUserLoggedIn.value = firebaseAuth.currentUser != null
+    }
+
     interface UserLoginListener {
         fun onSuccess()
 
@@ -77,6 +81,8 @@ class FirebaseLoginManager {
         fun setIsNewUser(isNewUser: Boolean) {
             FirebaseLoginManager.isNewUser = isNewUser
         }
+
     }
+
 
 }
