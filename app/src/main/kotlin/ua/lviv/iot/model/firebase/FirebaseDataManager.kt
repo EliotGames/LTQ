@@ -30,7 +30,7 @@ class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = F
     }
 
     public interface DataRetrieveListenerForUser {
-        fun onSuccess(userInformation: User)
+        fun onSuccess(user: User)
         fun onError(databaseError: DatabaseError)
     }
 
@@ -141,8 +141,8 @@ class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = F
     fun getCurrentUserData(uId: String, listener: DataRetrieveListenerForUser) {
         firebaseDatabase.reference.child("userData").child(uId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val userInformation: User = dataSnapshot.getValue(User::class.java)!!
-                listener.onSuccess(userInformation)
+                val user: User = dataSnapshot.getValue(User::class.java)!!
+                listener.onSuccess(user)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

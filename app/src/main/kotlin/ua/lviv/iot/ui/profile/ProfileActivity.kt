@@ -3,18 +3,27 @@ package ua.lviv.iot.ui.profile
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.EditText
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_profile.*
+import kotlinx.android.synthetic.main.partial_profile_header.*
 import ua.lviv.iot.R
+import ua.lviv.iot.model.firebase.User
 import ua.lviv.iot.ui.login.LoginActivity
 
 class ProfileActivity : AppCompatActivity() {
 
-    lateinit var profileViewModel :ProfileViewModel
+    private lateinit var profileViewModel :ProfileViewModel
+    private lateinit var userEmail: EditText
+    private lateinit var userFacebook: EditText
+    private lateinit var userName: TextView
+    private lateinit var userSex: TextView
+    private lateinit var userPoints: TextView
 
-    var isUserRegistered : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +41,13 @@ class ProfileActivity : AppCompatActivity() {
             }
             else { startActivity(Intent(this, LoginActivity::class.java))}
         })
+        profileViewModel.getCurrentUser()
+        profileViewModel.currentUserData.observe(this@ProfileActivity, Observer {
+            user_email.setText(it!!.email, TextView.BufferType.EDITABLE)
+            user_sex.text = it.sex.toString()
+            user_name.text = it.name
+
+        })
 
         //livedata func
         fun <T> LiveData<T>.observe(observe:(T?)->Unit) = observe(this@ProfileActivity, Observer {
@@ -40,3 +56,4 @@ class ProfileActivity : AppCompatActivity() {
 
     }
 }
+

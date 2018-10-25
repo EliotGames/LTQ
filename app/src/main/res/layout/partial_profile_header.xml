@@ -1,45 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="190dp"
-    android:background="@color/colorPrimary"
-    android:paddingTop="12dp">
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/user_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/user_avatar"
-        app:civ_border_color="#EEE"
-        app:civ_border_width="3dp"
-        app:civ_circle_background_color="#d8e4ec" />
-
-    <TextView
-        android:id="@+id/user_name"
-        android:layout_width="wrap_content"
+<layout>
+    <data>
+        <variable
+            name="viewmodel"
+            type="ua.lviv.iot.ui.profile.ProfileViewModel"/>
+    </data>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/user_image"
-        android:layout_centerHorizontal="true"
-        android:singleLine="true"
-        android:text="Name Surname"
-        android:textColor="#fff"
-        android:textSize="20sp" />
+        android:background="@color/colorPrimary"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
-    <TextView
-        android:id="@+id/user_city"
-        android:layout_width="wrap_content"
-        android:layout_height="26dp"
-        android:layout_below="@id/user_name"
-        android:layout_centerHorizontal="true"
-        android:drawablePadding="2dp"
-        android:drawableStart="@drawable/ic_user_location"
-        android:paddingEnd="8dp"
-        android:singleLine="true"
-        android:text="Lviv"
-        android:textColor="#fff"
-        android:textSize="20dp" />
-</RelativeLayout>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/user_avatar"
+            app:civ_border_color="#EEE"
+            app:civ_border_width="3dp"
+            app:civ_circle_background_color="#d8e4ec" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/user_image"
+            android:layout_centerHorizontal="true"
+            android:singleLine="true"
+            android:text="Name Surname"
+            android:textColor="#fff"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/user_city"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:layout_below="@id/user_name"
+            android:layout_centerHorizontal="true"
+            android:drawablePadding="2dp"
+            android:drawableStart="@drawable/ic_user_location"
+            android:paddingEnd="8dp"
+            android:singleLine="true"
+            android:text="Lviv"
+            android:textColor="#fff"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/user_sex"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:layout_below="@id/user_city"
+            android:layout_centerHorizontal="true"
+            android:drawablePadding="2dp"
+            android:drawableStart="@drawable/ic_person_white_24dp"
+            android:paddingEnd="8dp"
+            android:singleLine="true"
+            android:text="Choose Sex"
+            android:textColor="#fff"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/user_points"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:layout_below="@id/user_sex"
+            android:layout_centerHorizontal="true"
+            android:drawablePadding="2dp"
+            android:drawableStart="@drawable/ic_attach_money_white_24dp"
+            android:paddingEnd="8dp"
+            android:singleLine="true"
+            android:text=" 0 "
+            android:textColor="#fff"
+            android:textSize="20dp" />
+    </RelativeLayout>
+</layout>
