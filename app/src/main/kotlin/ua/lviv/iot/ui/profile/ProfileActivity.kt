@@ -49,6 +49,9 @@ class ProfileActivity : AppCompatActivity() {
 
         })
 
+
+
+        
         //livedata func
         fun <T> LiveData<T>.observe(observe:(T?)->Unit) = observe(this@ProfileActivity, Observer {
             observe (it)

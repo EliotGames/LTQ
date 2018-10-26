@@ -1,0 +1,115 @@
+{
+  "project_info": {
+    "project_number": "192781036687",
+    "firebase_url": "https://ltquest-196416.firebaseio.com",
+    "project_id": "ltquest-196416",
+    "storage_bucket": "ltquest-196416.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192781036687:android:632897ad3ecabc6a",
+        "android_client_info": {
+          "package_name": "com.eliot.ltq.ltquest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "192781036687-52fufd6po7ptvinr62qma49l4vbob9ei.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eliot.ltq.ltquest",
+            "certificate_hash": "0f4bc7b8961c7a10ffc6d1e85b20762c5a9572b3"
+          }
+        },
+        {
+          "client_id": "192781036687-43olmd7jlk01734r2k2tqv4r6eigr80i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eliot.ltq.ltquest",
+            "certificate_hash": "02b5ed1cc1bbe6e8e7c833eabe142a16ac579df0"
+          }
+        },
+        {
+          "client_id": "192781036687-qhlurds341ac0d2osdvqt3ibjobp3tv5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eliot.ltq.ltquest",
+            "certificate_hash": "542beae0d78f89dbee213218f8454436bca1bf76"
+          }
+        },
+        {
+          "client_id": "192781036687-nr2ms39jbh5kslafta8tgolsrlrhdupi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "192781036687-ku6jlb4rn7v41h1libsovis77uu61jd3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192781036687:android:fc0959d892f2b76b",
+        "android_client_info": {
+          "package_name": "ua.lviv.iot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "192781036687-vhqc07n977t7ltjsan746iv5ikud59gu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ua.lviv.iot",
+            "certificate_hash": "4444be5280e6fe5294c1f6ea809be81a318bf9a2"
+          }
+        },
+        {
+          "client_id": "192781036687-nr2ms39jbh5kslafta8tgolsrlrhdupi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "192781036687-ku6jlb4rn7v41h1libsovis77uu61jd3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
