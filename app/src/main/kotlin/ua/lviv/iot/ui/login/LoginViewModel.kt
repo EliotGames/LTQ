@@ -11,7 +11,7 @@ import ua.lviv.iot.model.firebase.User
 
 class LoginViewModel: ViewModel() {
     private var firebaseLoginManager: FirebaseLoginManager = FirebaseLoginManager()
-    private var firebaseDataManager: FirebaseDataManager = FirebaseDataManager()
+    private var firebaseDataManager: FirebaseDataManager = FirebaseDataManager.getInstance()
     private lateinit var user: User
     var isLoginSuccessfull = MutableLiveData<Boolean>().default(false)
 

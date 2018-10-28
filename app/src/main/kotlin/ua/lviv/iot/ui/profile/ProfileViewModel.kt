@@ -16,7 +16,7 @@ class ProfileViewModel : ViewModel() {
     var currentUserData = MutableLiveData<User>().default(currentUser)
 
     fun getCurrentUser() {
-        FirebaseDataManager().getCurrentUserData(FirebaseLoginManager().currentUser!!.uid, object : FirebaseDataManager.DataRetrieveListenerForUser {
+        FirebaseDataManager.getInstance().getCurrentUserData(FirebaseLoginManager().currentUser!!.uid, object : FirebaseDataManager.DataRetrieveListenerForUser {
             override fun onSuccess(user: User) {
                 currentUser = user
                 currentUserData.value = currentUser

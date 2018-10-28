@@ -9,7 +9,20 @@ import com.google.firebase.database.ValueEventListener
 import ua.lviv.iot.model.map.Location
 import ua.lviv.iot.model.map.Quest
 
-class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()){
+class FirebaseDataManager private constructor(){
+
+    val firebaseDatabase = FirebaseDatabase.getInstance()
+
+    companion object {
+        @Volatile private var instance: FirebaseDataManager?= null
+
+        fun getInstance() = instance?: synchronized(this){
+            instance?: FirebaseDataManager().also { instance = it }
+        }
+
+    }
+
+
     interface DataRetrieveListener {
         fun onSuccess()
     }
@@ -19,22 +32,22 @@ class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = F
         fun onError(databaseError: DatabaseError)
     }*/
 
-    public interface DataRetrieveListenerForQuest {
-        fun onSuccess(questStructureList: List<Quest>, context: Context)
+    interface DataRetrieveListenerForQuest {
+        fun onSuccess(questStructureList: List<Quest>)
         fun onError(databaseError: DatabaseError)
     }
 
-    public interface DataRetrieveListenerForLocationsStructure {
+    interface DataRetrieveListenerForLocationsStructure {
         fun onSuccess(locationStructureList: List<Location>)
         fun onError(databaseError: DatabaseError)
     }
 
-    public interface DataRetrieveListenerForUser {
+    interface DataRetrieveListenerForUser {
         fun onSuccess(user: User)
         fun onError(databaseError: DatabaseError)
     }
 
-    public interface UserWritingListener {
+    interface UserWritingListener {
         fun onSuccess()
         fun onError()
     }
@@ -55,14 +68,14 @@ class FirebaseDataManager constructor(val firebaseDatabase: FirebaseDatabase = F
         })
     }*/
 
-    fun questsRetriever(context: Context, listener: DataRetrieveListenerForQuest) {
-        firebaseDatabase.getReference("quest").addListenerForSingleValueEvent(object : ValueEventListener {
+    fun questsRetriever(listener: DataRetrieveListenerForQuest) {
+        firebaseDatabase.getReference("quest").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val questStructureList = ArrayList<Quest>()
                 for (dataSpanshot1 in dataSnapshot.children) {
                     questStructureList.add(dataSpanshot1.getValue(Quest::class.java)!!)
                 }
-                listener.onSuccess(questStructureList, context)
+                listener.onSuccess(questStructureList)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

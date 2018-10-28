@@ -17,7 +17,7 @@ import ua.lviv.iot.ui.login.LoginActivity
 
 
 class FirebaseLoginManager {
-    private val firebaseDataManager = FirebaseDataManager()
+    private val firebaseDataManager = FirebaseDataManager.getInstance()
     private val firebaseAuth = FirebaseAuth.getInstance()
 
     val currentUser: FirebaseUser?
