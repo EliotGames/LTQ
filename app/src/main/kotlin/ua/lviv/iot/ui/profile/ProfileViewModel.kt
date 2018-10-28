@@ -30,6 +30,4 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }
-
-
 }

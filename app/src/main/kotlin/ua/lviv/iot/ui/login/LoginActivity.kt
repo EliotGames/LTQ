@@ -17,7 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import ua.lviv.iot.R
 import ua.lviv.iot.`interface`.LoginNavigator
-import ua.lviv.iot.ui.profile.ProfileActivity
+import ua.lviv.iot.ui.MainActivity
 
 
 class LoginActivity : AppCompatActivity() {
@@ -39,11 +39,13 @@ class LoginActivity : AppCompatActivity() {
         //viewmodel init
         loginViewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
 
-        loginViewModel.isLoginSuccessfull.observe(this, Observer{
-            if(it!!) {
-                startActivity(Intent(this, ProfileActivity::class.java))
+        loginViewModel.isLoginSuccessfull.observe(this, Observer {
+            if (it!!) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else {
+                Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()
             }
-            else {Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()}
         })
 
         //ui elements init
@@ -53,15 +55,16 @@ class LoginActivity : AppCompatActivity() {
         //ui buttons clicklistener
         //facebook onClickListener
         buttonFacebook.setOnClickListener {
-            if(isNetworkAvailable()) {
+            if (isNetworkAvailable()) {
                 loginViewModel.callFacebookLogin()
+            } else {
+                Toast.makeText(this, R.string.network_failed, Toast.LENGTH_SHORT).show()
             }
-            else {Toast.makeText(this, R.string.network_failed, Toast.LENGTH_SHORT).show()}
         }
         //google onClickListener
         buttonGoogle.setOnClickListener {
-            if(isNetworkAvailable()) {
-                loginViewModel.callGoogleLogin(object : LoginNavigator{
+            if (isNetworkAvailable()) {
+                loginViewModel.callGoogleLogin(object : LoginNavigator {
                     override fun openLoginActivity() {
                         googleSignInOption = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                                 .requestIdToken(this@LoginActivity.resources.getString(R.string.google_sign_in_token))
@@ -74,13 +77,14 @@ class LoginActivity : AppCompatActivity() {
                         startActivityForResult(signInIntent, REQUEST_CODE_GOOGLE_LOGIN)
                     }
                 })
+            } else {
+                Toast.makeText(this, R.string.network_failed, Toast.LENGTH_SHORT).show()
             }
-            else {Toast.makeText(this, R.string.network_failed, Toast.LENGTH_SHORT).show()}
         }
 
         //LiveData observe fun
-        fun <T> LiveData<T>.observe(observe:(T?)->Unit) = observe(this@LoginActivity, Observer {
-            observe (it)
+        fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@LoginActivity, Observer {
+            observe(it)
         })
     }
 

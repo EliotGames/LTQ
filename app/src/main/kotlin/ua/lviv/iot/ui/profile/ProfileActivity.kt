@@ -3,16 +3,15 @@ package ua.lviv.iot.ui.profile
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.widget.EditText
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.android.synthetic.main.partial_profile_header.*
 import ua.lviv.iot.R
-import ua.lviv.iot.model.firebase.User
 import ua.lviv.iot.ui.login.LoginActivity
 
 class ProfileActivity : AppCompatActivity() {
@@ -28,9 +27,6 @@ class ProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //actionBar.title = "User profile"
-        //linearlayout_profile_main.requestFocus()
-
         //create viewmodel obj
         profileViewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
 
@@ -38,6 +34,10 @@ class ProfileActivity : AppCompatActivity() {
         profileViewModel.isUserRegistered.observe(this , Observer {
             if (it!!) {
                 setContentView(R.layout.activity_profile)
+                val toolbar = findViewById<Toolbar>(R.id.user_toolbar)
+                toolbar.title = "Profile"
+                setSupportActionBar(toolbar)
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             }
             else { startActivity(Intent(this, LoginActivity::class.java))}
         })
@@ -48,15 +48,11 @@ class ProfileActivity : AppCompatActivity() {
             user_name.text = it.name
 
         })
-
-
-
         
         //livedata func
         fun <T> LiveData<T>.observe(observe:(T?)->Unit) = observe(this@ProfileActivity, Observer {
             observe (it)
         })
-
     }
 }
 

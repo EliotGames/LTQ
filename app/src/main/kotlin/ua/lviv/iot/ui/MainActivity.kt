@@ -14,11 +14,11 @@ import android.util.Log
 import android.widget.Button
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.firebase.FirebaseApp
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import ua.lviv.iot.R
+import ua.lviv.iot.ui.balance.BalanceActivity
 import ua.lviv.iot.ui.profile.ProfileActivity
 import ua.lviv.iot.ui.quests.QuestsMenuActivity
+import ua.lviv.iot.ui.rating.RatingActivity
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {

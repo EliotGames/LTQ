@@ -2,7 +2,7 @@ package ua.lviv.iot.utils
 
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.Repository
-import ua.lviv.iot.viewmodels.QuestMenuViewModelFactory
+import ua.lviv.iot.ui.quests.QuestMenuViewModelFactory
 
 object InjectorUtils {
     fun provideQuestMenuViewModelFactory(): QuestMenuViewModelFactory {

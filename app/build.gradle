@@ -59,6 +59,8 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:16.0.5"
     implementation "com.google.firebase:firebase-storage:16.0.3"
 
+    //Material Components
+    implementation "com.android.support:design:$android_support_version"
     // Recycle view
     implementation "com.android.support:recyclerview-v7:$android_support_version"
     // Circle imageView
