@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import ua.lviv.iot.`interface`.LoginNavigator
+import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.firebase.User
@@ -12,7 +13,7 @@ class LoginViewModel: ViewModel() {
     private var firebaseLoginManager: FirebaseLoginManager = FirebaseLoginManager()
     private var firebaseDataManager: FirebaseDataManager = FirebaseDataManager.getInstance()
     private lateinit var user: User
-    var isLoginSuccessfull = MutableLiveData<Boolean>().default(false)
+    var isLoginSuccessfull = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
 
 
     fun callFacebookLogin() {
@@ -45,20 +46,13 @@ class LoginViewModel: ViewModel() {
                                         //user logout successfully
                                         override fun onSuccess() {
                                             firebaseLoginManager.deleteUser(cUser, object : FirebaseLoginManager.UserLoginListener{
-                                                override fun onSuccess() {
-                                                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                                                }
-
-                                                override fun onError(massage: String) {
-                                                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                                                }
+                                                override fun onSuccess() { isLoginSuccessfull.value = EventResultStatus.EVENT_FAILED}
+                                                override fun onError(massage: String) {isLoginSuccessfull.value = EventResultStatus.EVENT_FAILED}
 
                                             })
                                         }
                                         //user cannot logout
-                                        override fun onError(massage: String) {
-                                            TODO()
-                                        }
+                                        override fun onError(massage: String) {isLoginSuccessfull.value = EventResultStatus.EVENT_FAILED}
                                     })
                                 }
 
@@ -70,17 +64,14 @@ class LoginViewModel: ViewModel() {
                 }
             }
             //user cannot login on firebase
-            override fun onError(massage: String) {
-                TODO()
-            }
+            override fun onError(massage: String) {isLoginSuccessfull.value = EventResultStatus.EVENT_FAILED}
         })
     }
 
     private fun onSuccessStatusChange() {
         FirebaseLoginManager._isUserLoggedIn.value = true
-        isLoginSuccessfull.value = true
+        isLoginSuccessfull.value = EventResultStatus.EVENT_SUCCESS
     }
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }
-
 }

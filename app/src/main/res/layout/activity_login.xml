@@ -70,4 +70,14 @@
             android:src="@drawable/login_google_button" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/skip_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_below="@+id/linearlayout_login_fb_google"
+        android:layout_centerHorizontal="true"
+        android:text="Skip"
+        android:layout_marginTop="30dp"/>
 </RelativeLayout>

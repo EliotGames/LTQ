@@ -9,6 +9,7 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import com.google.android.gms.auth.api.Auth
@@ -17,7 +18,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import ua.lviv.iot.R
 import ua.lviv.iot.`interface`.LoginNavigator
+import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.ui.MainActivity
+import ua.lviv.iot.ui.profile.ProfileActivity
 
 
 class LoginActivity : AppCompatActivity() {
@@ -36,15 +39,22 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        //init and setOnClickListener for skip_login button
+        val skipLogin = findViewById<Button>(R.id.skip_login)
+        skipLogin.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))}
+
         //viewmodel init
         loginViewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
 
+        //observe if user login is successful
         loginViewModel.isLoginSuccessfull.observe(this, Observer {
-            if (it!!) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            } else {
-                Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()
+            when(it) {
+                EventResultStatus.EVENT_SUCCESS -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))}
+                EventResultStatus.EVENT_FAILED -> {
+                    Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()}
+                else -> {}
             }
         })
 
