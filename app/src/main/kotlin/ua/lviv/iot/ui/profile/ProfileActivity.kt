@@ -35,13 +35,13 @@ class ProfileActivity : AppCompatActivity() {
 
         //init livedata
         profileViewModel.isUserRegistered.observe(this , Observer {
-            if (it!!) {
+            if (it == EventResultStatus.EVENT_SUCCESS) {
                 setContentView(R.layout.activity_profile)
 
-                /*val toolbar = findViewById<Toolbar>(R.id.user_t)
+                val toolbar = findViewById<Toolbar>(R.id.user_toolbar)
                 toolbar.title = "Profile"
                 setSupportActionBar(toolbar)
-                supportActionBar!!.setDisplayHomeAsUpEnabled(true)*/
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
                 //get current user data
                 profileViewModel.getCurrentUser()

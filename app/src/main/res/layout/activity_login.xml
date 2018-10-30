@@ -44,11 +44,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_login_sign_with">
 
-        <!--<com.facebook.login.widget.LoginButton
-            android:id="@+id/fb_login_button"
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/hided_fb_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone" />-->
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/btn_login_facebook"

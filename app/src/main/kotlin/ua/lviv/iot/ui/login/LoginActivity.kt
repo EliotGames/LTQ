@@ -21,6 +21,14 @@ import ua.lviv.iot.`interface`.LoginNavigator
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.ui.MainActivity
 import ua.lviv.iot.ui.profile.ProfileActivity
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
+import com.facebook.FacebookCallback
+import com.facebook.login.LoginManager
+import com.facebook.CallbackManager
+import com.facebook.FacebookSdk
+import com.facebook.appevents.AppEventsLogger
+import java.util.*
 
 
 class LoginActivity : AppCompatActivity() {
@@ -34,6 +42,7 @@ class LoginActivity : AppCompatActivity() {
     //objects for google registration
     lateinit var googleSignInClient: GoogleSignInClient
     lateinit var googleSignInOption: GoogleSignInOptions
+    lateinit var callbackManager: CallbackManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,16 +70,40 @@ class LoginActivity : AppCompatActivity() {
         //ui elements init
         val buttonFacebook = findViewById<ImageButton>(R.id.btn_login_facebook)
         val buttonGoogle = findViewById<ImageButton>(R.id.btn_login_google)
+        val hideFbBtn = findViewById<com.facebook.login.widget.LoginButton>(R.id.hided_fb_button)
 
         //ui buttons clicklistener
         //facebook onClickListener
         buttonFacebook.setOnClickListener {
             if (isNetworkAvailable()) {
-                loginViewModel.callFacebookLogin()
+                hideFbBtn.performClick()
             } else {
                 Toast.makeText(this, R.string.network_failed, Toast.LENGTH_SHORT).show()
             }
         }
+
+        //Facebook init
+        FacebookSdk.sdkInitialize(getApplicationContext())
+        AppEventsLogger.activateApp(this@LoginActivity)
+        callbackManager = CallbackManager.Factory.create()
+        hideFbBtn.setReadPermissions("email", "public_profile", "user_friends");
+        LoginManager.getInstance().registerCallback(callbackManager,
+                object : FacebookCallback<LoginResult> {
+                    override fun onSuccess(loginResult: LoginResult) {
+                        loginViewModel.callFacebookLogin(loginResult)
+                    }
+
+                    override fun onCancel() {
+                        Log.e("Facebook", "Auth cancelled!")
+                        // App code
+                    }
+
+                    override fun onError(exception: FacebookException) {
+                        Log.e("Facebook", "Auth error!")
+                        // App code
+                    }
+                })
+
         //google onClickListener
         buttonGoogle.setOnClickListener {
             if (isNetworkAvailable()) {
@@ -100,6 +133,8 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        callbackManager.onActivityResult(requestCode, resultCode, data)
 
         Log.i("Tag", "Got Result code $requestCode.")
 
