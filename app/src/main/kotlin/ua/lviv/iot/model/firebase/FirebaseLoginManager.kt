@@ -28,6 +28,7 @@ class FirebaseLoginManager {
         get() = firebaseAuth.currentUser
 
 
+    //user logout
     fun logout(listener: UserLoginListener) {
         try {
             firebaseAuth.signOut()
@@ -38,16 +39,18 @@ class FirebaseLoginManager {
 
     }
 
+    //delete user inf
     fun deleteUser(user: FirebaseUser, listener: UserLoginListener) {
         user.delete()
                 .addOnSuccessListener { listener.onSuccess() }
                 .addOnFailureListener { e -> listener.onError(e.localizedMessage) }
     }
 
+    //create data for new user and write it to Firebase
     fun createUserData() {
         if(FirebaseLoginManager.isNewUser) {
             user = User(currentUser!!.displayName!!,
-                    currentUser!!.providerId)
+                    checkEmailForDataWriting(currentUser!!))
             firebaseDataManager.writeCurrentUserData(
                     currentUser!!.uid, user, object: FirebaseDataManager.UserWritingListener{
                         //personal data has written on firebase: change user status
@@ -79,11 +82,13 @@ class FirebaseLoginManager {
         }
     }
 
+    //change user auth status
     private fun onSuccessStatusChange() {
         FirebaseLoginManager.isLoginSuccessfull.value = EventResultStatus.EVENT_SUCCESS
         isLoginSuccessfull.value = EventResultStatus.EVENT_SUCCESS
     }
 
+    //facebook auth to firebase
     fun firebaseAuthWithFacebook(token: AccessToken, listener: UserLoginListener) {
         Log.d("TAG", "firebaseAuthWithFacebook:" + token)
         val credential = FacebookAuthProvider.getCredential(token.token)
@@ -98,6 +103,7 @@ class FirebaseLoginManager {
     }
 
 
+    //google auth to firebase
     fun firebaseAuthWithGoogle(account: GoogleSignInAccount, listener: UserLoginListener) {
 
         Log.i("TAG", "Authenticating user with firebase.")
@@ -111,6 +117,7 @@ class FirebaseLoginManager {
                 .addOnFailureListener { listener.onError("Cannot sing in with your Google account") }
     }
 
+    //check if user is login, check in splash
     fun isUserLoggedIn() {
         if(firebaseAuth.currentUser != null) {
             FirebaseLoginManager.isLoginSuccessfull.value = EventResultStatus.EVENT_SUCCESS
@@ -123,12 +130,23 @@ class FirebaseLoginManager {
         fun onError(massage: String)
     }
 
+    //check if user's account has already present on firebase
     fun setIsNewUser(authResult: AuthResult) {
         if (authResult.additionalUserInfo.isNewUser) {
             FirebaseLoginManager.setIsNewUser(true)
         } else {
             FirebaseLoginManager.setIsNewUser(false)
         }
+    }
+
+    fun checkEmailForDataWriting(currentUser: FirebaseUser) : String {
+        if (currentUser.email != null) {
+            return currentUser.email!!
+        }
+        else if (currentUser.phoneNumber != null) {
+            return currentUser.phoneNumber!!
+        }
+        else {return currentUser.displayName!!}
     }
 
     companion object {

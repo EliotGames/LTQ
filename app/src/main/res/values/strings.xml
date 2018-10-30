@@ -8,6 +8,7 @@
     <!--Facebook-->
     <string name="facebook_app_id">253169775339138</string>
     <string name="fb_login_protocol_scheme">fb253169775339138</string>
+    <string name="login_facebook_email_exists_massage">An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.</string>
 
     <!--Network status-->
     <string name="network_failed">Connection failed! Please, check yout network</string>

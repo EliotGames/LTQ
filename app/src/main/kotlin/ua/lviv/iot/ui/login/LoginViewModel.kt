@@ -3,9 +3,12 @@ package ua.lviv.iot.ui.login
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.content.res.Resources
+import android.util.Log
 import com.facebook.AccessToken
 import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import ua.lviv.iot.R
 import ua.lviv.iot.`interface`.LoginNavigator
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseDataManager
@@ -24,6 +27,9 @@ class LoginViewModel: ViewModel() {
             }
 
             override fun onError(massage: String) {
+                if (massage == Resources.getSystem().getString(R.string.login_facebook_email_exists_massage)) {
+                    Log.e("Facebook", "User with this email is already exists!")
+                }
                 FirebaseLoginManager.isLoginSuccessfull.value = EventResultStatus.EVENT_FAILED
             }
 
@@ -39,12 +45,11 @@ class LoginViewModel: ViewModel() {
             //user has registered: write personal data to firebase
             override fun onSuccess() {
                 FirebaseLoginManager().createUserData()
-                isLoginSuccessfull.value = FirebaseLoginManager.isLoginSuccessfull.value
             }
             //user cannot login on firebase
             override fun onError(massage: String) {
                 FirebaseLoginManager.isLoginSuccessfull.value = EventResultStatus.EVENT_FAILED
-                isLoginSuccessfull.value = FirebaseLoginManager.isLoginSuccessfull.value}
+                }
         })
     }
 
