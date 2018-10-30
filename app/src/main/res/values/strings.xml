@@ -5,5 +5,6 @@
 
     <!--Network status-->
     <string name="network_failed">Connection failed! Please, check yout network</string>
+    <string name="title_activity_quest">Map</string>
 
 </resources>

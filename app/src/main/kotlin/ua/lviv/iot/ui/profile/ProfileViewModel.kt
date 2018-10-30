@@ -18,7 +18,8 @@ class ProfileViewModel : ViewModel() {
     var isUserLogout = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
 
     fun getCurrentUser() {
-        FirebaseDataManager.getInstance().getCurrentUserData(FirebaseLoginManager().currentUser!!.uid, object : FirebaseDataManager.DataRetrieveListenerForUser {
+        val f = FirebaseDataManager.getInstance()
+        f.getCurrentUserData(FirebaseLoginManager().currentUser!!.uid, object : FirebaseDataManager.DataRetrieveListenerForUser {
             override fun onSuccess(user: User) {
                 currentUser = user
                 currentUserData.value = currentUser

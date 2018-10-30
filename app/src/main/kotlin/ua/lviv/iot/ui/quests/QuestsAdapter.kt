@@ -1,12 +1,16 @@
 package ua.lviv.iot.ui.quests
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import kotlinx.android.synthetic.main.quests_list_item.view.*
+import ua.lviv.iot.QuestActivity
 import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
 
@@ -26,6 +30,7 @@ class QuestsAdapter(val items: ArrayList<Quest>, val context: Context) :
 
         holder.mainLayout.setOnClickListener {
             Toast.makeText(context, items[position].questName, Toast.LENGTH_SHORT).show()
+            context.startActivity(Intent(context, QuestActivity::class.java))
         }
     }
 }
