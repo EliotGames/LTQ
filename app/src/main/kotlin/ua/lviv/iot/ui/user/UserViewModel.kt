@@ -1,4 +1,4 @@
-package ua.lviv.iot.ui.profile
+package ua.lviv.iot.ui.user
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
@@ -8,9 +8,8 @@ import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.firebase.User
-import ua.lviv.iot.model.firebase.UserSex
 
-class ProfileViewModel : ViewModel() {
+class UserViewModel : ViewModel() {
     var isUserRegistered: LiveData<EventResultStatus> = FirebaseLoginManager.isLoginSuccessfull
     private var currentUser = User("Name Surname", "example@gmail.com")
     var currentUserData = MutableLiveData<User>().default(currentUser)

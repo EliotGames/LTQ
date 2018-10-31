@@ -25,41 +25,6 @@ class ProfileFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
 
-        //create viewmodel obj
-        profileViewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
-
-        //init livedata
-        profileViewModel.isUserRegistered.observe(this , Observer { parentIt ->
-            if (parentIt == EventResultStatus.EVENT_SUCCESS) {
-                //get current user data
-                profileViewModel.getCurrentUser()
-                profileViewModel.currentUserData.observe(this@ProfileFragment, Observer {
-                    user_email.setText(it!!.email, TextView.BufferType.EDITABLE)
-                    user_sex.text = it.sex.toString()
-                    user_name.text = it.name })
-
-                //init and setOnClickListener on Logout button
-                val logout = view.findViewById<Button>(R.id.logout_button)
-                logout.setOnClickListener { profileViewModel.userLogout() }
-
-                profileViewModel.isUserLogout.observe(this, Observer {
-                    when(it) {
-                        EventResultStatus.EVENT_SUCCESS -> {
-                            startActivity(Intent(activity, LoginActivity::class.java))}
-                        EventResultStatus.EVENT_FAILED -> {
-                            Toast.makeText(activity, "Something went wrong! Please, try again!", Toast.LENGTH_SHORT).show()}
-                        else -> {}
-                    }
-                })
-            }
-            else { startActivity(Intent(activity, LoginActivity::class.java))}
-        })
-
-        //livedata func
-        fun <T> LiveData<T>.observe(observe:(T?)->Unit) = observe(this@ProfileFragment, Observer {
-            observe (it)
-        })
-
 
         return view
     }
