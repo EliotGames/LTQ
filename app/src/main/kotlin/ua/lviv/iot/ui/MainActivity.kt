@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.firebase.FirebaseApp
 import ua.lviv.iot.R
-import ua.lviv.iot.ui.quests.QuestsMenuActivity
+import ua.lviv.iot.ui.questsMenu.QuestsMenuActivity
 import ua.lviv.iot.ui.user.UserActivity
 import ua.lviv.iot.utils.LVIV_LAT
 import ua.lviv.iot.utils.LVIV_LNG

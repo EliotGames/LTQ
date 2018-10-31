@@ -8,8 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ua.lviv.iot.R
-import ua.lviv.iot.ui.quests.QuestsAdapter
-import ua.lviv.iot.ui.quests.QuestsManager
+import ua.lviv.iot.ui.questsMenu.QuestsAdapter
+import ua.lviv.iot.ui.questsMenu.QuestsManager
 
 class RatingFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
