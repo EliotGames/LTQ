@@ -1,22 +1,11 @@
 package ua.lviv.iot.model.firebase
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.content.Intent
-import android.provider.Settings.Global.getString
-import android.support.v4.content.ContextCompat.startActivity
 import android.util.Log
-import android.widget.Toast
 import com.facebook.AccessToken
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.*
-import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
-import ua.lviv.iot.ui.MainActivity
-import ua.lviv.iot.ui.login.LoginActivity
 
 
 class FirebaseLoginManager {

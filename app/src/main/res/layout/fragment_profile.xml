@@ -1,0 +1,86 @@
+<layout>
+    <data>
+        <variable
+            name="viewmodel"
+            type="ua.lviv.iot.ui.profile.ProfileViewModel"/>
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/linearlayout_profile_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
+
+        <include layout="@layout/partial_profile_header" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingEnd="8dp"
+            android:paddingStart="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/UserTitleTextview"
+                    android:layout_width="104dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:text="Facebook:" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:text="facebook.com/example"
+                    android:clickable="false"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/UserTitleTextview"
+                    android:layout_width="104dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:text="E-mail:" />
+
+                <EditText
+                    android:id="@+id/user_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:text="example@gmail.com"
+                    android:textColor="@android:color/black"
+                    android:clickable="false"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/logout_button"
+                style="@style/DefaultButton"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:text="logout"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>
