@@ -1,4 +1,4 @@
-package ua.lviv.iot.ui.quests
+package ua.lviv.iot.ui.questsMenu
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
