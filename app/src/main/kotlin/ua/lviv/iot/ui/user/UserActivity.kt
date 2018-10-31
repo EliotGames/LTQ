@@ -12,15 +12,11 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_profile.*
-import kotlinx.android.synthetic.main.partial_profile_header.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
-import ua.lviv.iot.model.firebase.User
 import ua.lviv.iot.ui.balance.BalanceFragment
 import ua.lviv.iot.ui.login.LoginActivity
 import ua.lviv.iot.ui.profile.ProfileFragment
-import ua.lviv.iot.ui.profile.ProfileViewModel
 import ua.lviv.iot.ui.rating.RatingFragment
 
 class UserActivity : AppCompatActivity() {
@@ -40,14 +36,12 @@ class UserActivity : AppCompatActivity() {
                 //get current user data
                 profileViewModel.getCurrentUser()
                 profileViewModel.currentUserData.observe(this@UserActivity, Observer {
-                    user_email.setText(it!!.email, TextView.BufferType.EDITABLE)
-                    user_sex.text = it.sex.toString()
-                    user_name.text = it.name
-                })
+                    val userSexTV = findViewById<TextView>(R.id.user_sex)
+                    val userNameTV = findViewById<TextView>(R.id.user_name)
 
-                //init and setOnClickListener on Logout button
-                val logout = findViewById<Button>(R.id.logout_button)
-                logout.setOnClickListener { profileViewModel.userLogout() }
+                    userSexTV.text = it?.sex.toString()
+                    userNameTV.text = it!!.name
+                })
 
                 profileViewModel.isUserLogout.observe(this, Observer {
                     when (it) {

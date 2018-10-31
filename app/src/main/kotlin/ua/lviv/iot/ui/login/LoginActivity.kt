@@ -20,7 +20,6 @@ import ua.lviv.iot.R
 import ua.lviv.iot.`interface`.LoginNavigator
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.ui.MainActivity
-import ua.lviv.iot.ui.profile.ProfileActivity
 import com.facebook.FacebookException
 import com.facebook.login.LoginResult
 import com.facebook.FacebookCallback
@@ -28,7 +27,6 @@ import com.facebook.login.LoginManager
 import com.facebook.CallbackManager
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
-import java.util.*
 
 
 class LoginActivity : AppCompatActivity() {
@@ -60,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
         loginViewModel.isLoginSuccessfull.observe(this, Observer {
             when(it) {
                 EventResultStatus.EVENT_SUCCESS -> {
-                    startActivity(Intent(this, ProfileActivity::class.java))}
+                    startActivity(Intent(this, MainActivity::class.java))}
                 EventResultStatus.EVENT_FAILED -> {
                     Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()}
                 else -> {}
