@@ -32,7 +32,7 @@
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.quests.QuestsMenuActivity"
+            android:name=".ui.questsMenu.QuestsMenuActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -54,7 +54,7 @@
             android:value="@string/google_maps_api_key" />
 
         <activity
-            android:name=".QuestActivity"
+            android:name=".ui.quest.QuestActivity"
             android:label="@string/title_activity_quest"></activity>
     </application>
 

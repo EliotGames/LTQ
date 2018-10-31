@@ -6,8 +6,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import kotlinx.android.synthetic.main.activity_rating.*
 import ua.lviv.iot.R
-import ua.lviv.iot.ui.quests.QuestsAdapter
-import ua.lviv.iot.ui.quests.QuestsManager
+import ua.lviv.iot.ui.questsMenu.QuestsAdapter
+import ua.lviv.iot.ui.questsMenu.QuestsManager
 
 class RatingActivity : AppCompatActivity() {
 

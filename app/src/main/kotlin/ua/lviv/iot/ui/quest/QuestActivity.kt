@@ -1,12 +1,14 @@
-package ua.lviv.iot
+package ua.lviv.iot.ui.quest
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
@@ -17,8 +19,6 @@ import android.widget.Button
 import android.widget.TextView
 import com.akexorcist.googledirection.GoogleDirection
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
@@ -33,8 +33,9 @@ import com.androidmapsextensions.MarkerOptions
 import com.androidmapsextensions.OnMapReadyCallback
 import com.androidmapsextensions.PolylineOptions
 import com.androidmapsextensions.SupportMapFragment
-import com.google.android.gms.maps.model.JointType
+import com.google.android.gms.maps.model.*
 import com.google.firebase.database.DatabaseError
+import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
 
 
@@ -60,7 +61,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private var data = ArrayList<LatLng>()
     private val changedMarkerInflated: View? = null
     private val changedMarkerNumber: TextView? = null
-    private val distanceBetweenPoint: TextView? = null
+    private var distanceBetweenPoint: TextView? = null
     private val cMarkerdistanceBetweenPoint: TextView? = null
     private var inflater: LayoutInflater? = null
     private var markerInflated: View? = null
@@ -106,11 +107,19 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        try {
+            mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(
+                    this, R.raw.silver_style_maps))
+        } catch (e: Resources.NotFoundException) {
+            e.message
+        }
         inflater = applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         markerInflated = inflater!!.inflate(R.layout.marker, null)
         numberOfPoint = markerInflated!!.findViewById(R.id.number_text_view) as TextView
-        currentQuestName = "justName"
+        val intent = intent
+        currentQuestName = intent.getStringExtra("questName")
         secretMarkerInflated = inflater!!.inflate(R.layout.marker, null)
+        distanceBetweenPoint = markerInflated!!.findViewById(R.id.text_text_view) as TextView
         drawRoute(currentQuestName!!)
         // Add a marker in Sydney and move the camera
         //mMap.moveCamera(CameraUpdateFactory.newLatLng())
@@ -143,6 +152,17 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 
             }
         })
+    }
+
+    private fun focusMapOnMarkers(markersList: List<Marker> ){
+        val builder = LatLngBounds.builder()
+        for (marker in markersList) {
+            builder.include(marker.position)
+        }
+        val bounds = builder.build()
+        val padding = 65 // offset from edges of the map in pixels
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+        mMap.animateCamera(cameraUpdate)
     }
 
     private fun prepareDataAndDrawingRoute(locationStructureList: List<LocationStructure>) {
@@ -253,6 +273,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
             val j = i + 1
             if (!locationStructureList[i].isSecret) {
                 numberOfPoint!!.text = j.toString()
+                distanceBetweenPoint!!.text = locationStructureList[i].distanceToPrevious
                 val marker = mMap.addMarker(MarkerOptions()
                         .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon))
                         .anchor(0.5f, 0.5f)
@@ -270,7 +291,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
             }
         }
         changeMarkerListener()
-        //focusMapOnMarkers(markersList)
+        focusMapOnMarkers(markersList)
     }
     private fun getBitmapFromView(view: View): Bitmap {
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
@@ -282,19 +303,51 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         return bitmap
     }
 
-    fun changeMarkerListener(){
+    private fun changeMarkerListener() {
         mMap.setOnMarkerClickListener(object: GoogleMap.OnMarkerClickListener {
-            override fun onMarkerClick(marker: Marker?): Boolean {
-                val locationStructure = marker!!.getData<LocationStructure>()
-                if(locationStructure.isSecret){
+
+
+            override fun onMarkerClick(marker: Marker): Boolean {
+                val locationStructure = marker.getData<LocationStructure>()
+                if (!locationStructure.isSecret) {
                     val number = locationStructure.locationID
-                    val done = "done"
-
-
+                    changedMarkerNumber!!.text = number.toString()
+                    cMarkerdistanceBetweenPoint!!.text = "done"
+//                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(changedMarkerInflated)));
+//                    mBottomSheetBehavior!!.isHideable = true
+//                    mBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+//                    bottomSheetName!!.text = locationStructure.locationName
+//                    bottomSheetInfo!!.text = locationStructure.locationDescription
+//                    bottomSheetSkipButton!!.setOnClickListener(object: View.OnClickListener {
+//                        override fun onClick(v: View) {
+//                            mBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN;
+//                        }
+//                    })
+//
+//
+//                    runOnUiThread(object: Runnable() {
+//                        override fun run() {
+//
+//
+//                        }
+//                    })
+//
+//                    val handler = Handler()
+//                    handler.postDelayed(object: Runnable {
+//                        override fun run() {
+//                            mBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED;
+//                        }
+//                    }, 300)
+//                } else {
+//
                 }
+
                 return true
+
             }
         })
     }
+
+
 
 }

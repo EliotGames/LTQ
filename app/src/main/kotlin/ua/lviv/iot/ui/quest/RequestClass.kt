@@ -1,4 +1,4 @@
-package ua.lviv.iot
+package ua.lviv.iot.ui.quest
 
 import com.google.android.gms.maps.model.LatLng
 

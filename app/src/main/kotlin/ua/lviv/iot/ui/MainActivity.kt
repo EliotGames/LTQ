@@ -17,7 +17,7 @@ import com.google.firebase.FirebaseApp
 import ua.lviv.iot.R
 import ua.lviv.iot.ui.balance.BalanceActivity
 import ua.lviv.iot.ui.profile.ProfileActivity
-import ua.lviv.iot.ui.quests.QuestsMenuActivity
+import ua.lviv.iot.ui.questsMenu.QuestsMenuActivity
 import ua.lviv.iot.ui.rating.RatingActivity
 
 
