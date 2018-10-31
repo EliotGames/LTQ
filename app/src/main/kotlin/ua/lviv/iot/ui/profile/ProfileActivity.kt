@@ -17,6 +17,7 @@ import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.ui.login.LoginActivity
 
 class ProfileActivity : AppCompatActivity() {
+
     private lateinit var profileViewModel :ProfileViewModel
     private lateinit var userEmail: EditText
     private lateinit var userFacebook: EditText
@@ -33,8 +34,13 @@ class ProfileActivity : AppCompatActivity() {
 
         //init livedata
         profileViewModel.isUserRegistered.observe(this , Observer {
-            if (it!!) {
+            if (it == EventResultStatus.EVENT_SUCCESS) {
                 setContentView(R.layout.activity_profile)
+
+                /*val toolbar = findViewById<Toolbar>(R.id.user_t)
+                toolbar.title = "Profile"
+                setSupportActionBar(toolbar)
+                supportActionBar!!.setDisplayHomeAsUpEnabled(true)*/
 
                 //get current user data
                 profileViewModel.getCurrentUser()

@@ -12,7 +12,7 @@ import ua.lviv.iot.model.firebase.UserSex
 
 class ProfileViewModel : ViewModel() {
 
-    var isUserRegistered: LiveData<Boolean> = FirebaseLoginManager._isUserLoggedIn
+    var isUserRegistered: LiveData<EventResultStatus> = FirebaseLoginManager.isLoginSuccessfull
     private var currentUser = User("Name Surname", "example@gmail.com")
     var currentUserData = MutableLiveData<User>().default(currentUser)
     var isUserLogout = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
@@ -33,13 +33,11 @@ class ProfileViewModel : ViewModel() {
 
     fun userLogout() {
         FirebaseLoginManager().logout(object: FirebaseLoginManager.UserLoginListener {
-            override fun onSuccess() { FirebaseLoginManager._isUserLoggedIn.value = false
+            override fun onSuccess() { FirebaseLoginManager.isLoginSuccessfull.value = EventResultStatus.NO_EVENT
                 isUserLogout.value = EventResultStatus.EVENT_SUCCESS}
             override fun onError(massage: String) {isUserLogout.value = EventResultStatus.EVENT_FAILED}
         })
     }
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }
-
-    //enum for isUserLogout variable
 }

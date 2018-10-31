@@ -5,6 +5,7 @@ buildscript {
         googlePlayVersion = "16.0.0"
     }
     repositories {
+        mavenCentral()
         google()
         jcenter()
     }
