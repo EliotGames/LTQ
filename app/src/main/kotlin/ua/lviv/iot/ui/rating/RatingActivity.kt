@@ -23,6 +23,6 @@ class RatingActivity : AppCompatActivity() {
         val quests = ArrayList(QuestsManager.generateQuestsList().subList(0, 4))
 
         rv_rating_list.layoutManager = LinearLayoutManager(this)
-        rv_rating_list.adapter = QuestsAdapter(quests, this)
+        rv_rating_list.adapter = QuestsAdapter(quests)
     }
 }

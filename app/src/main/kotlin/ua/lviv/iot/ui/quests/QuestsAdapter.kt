@@ -10,14 +10,16 @@ import kotlinx.android.synthetic.main.quests_list_item.view.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
 
-class QuestsAdapter(val items: ArrayList<Quest>, val context: Context) :
+class QuestsAdapter(val items: ArrayList<Quest>) :
         RecyclerView.Adapter<ViewHolder>() {
+    private lateinit var context: Context
 
     override fun getItemCount(): Int {
         return items.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
+        context = parent.context
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.quests_list_item, parent, false))
     }
 

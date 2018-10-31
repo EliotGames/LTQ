@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -18,7 +17,6 @@ import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.ui.login.LoginActivity
 
 class ProfileActivity : AppCompatActivity() {
-
     private lateinit var profileViewModel :ProfileViewModel
     private lateinit var userEmail: EditText
     private lateinit var userFacebook: EditText
@@ -37,11 +35,6 @@ class ProfileActivity : AppCompatActivity() {
         profileViewModel.isUserRegistered.observe(this , Observer {
             if (it!!) {
                 setContentView(R.layout.activity_profile)
-
-                /*val toolbar = findViewById<Toolbar>(R.id.user_t)
-                toolbar.title = "Profile"
-                setSupportActionBar(toolbar)
-                supportActionBar!!.setDisplayHomeAsUpEnabled(true)*/
 
                 //get current user data
                 profileViewModel.getCurrentUser()

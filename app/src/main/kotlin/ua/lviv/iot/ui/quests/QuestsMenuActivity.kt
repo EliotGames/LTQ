@@ -24,6 +24,6 @@ class QuestsMenuActivity : AppCompatActivity() {
         val factory = InjectorUtils.provideQuestMenuViewModelFactory()
         val viewModel = ViewModelProviders.of(this, factory)
                 .get(QuestMenuViewModel::class.java)
-        viewModel.getQuests().observe(this, Observer { quests -> rv_quests_all.adapter = QuestsAdapter(ArrayList(quests), this) })
+        viewModel.getQuests().observe(this, Observer { quests -> rv_quests_all.adapter = QuestsAdapter(ArrayList(quests)) })
     }
 }

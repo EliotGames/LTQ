@@ -3,22 +3,21 @@ package ua.lviv.iot.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.LatLng
-import ua.lviv.iot.utils.*
-import android.content.res.Resources
 import android.util.Log
 import android.widget.Button
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.firebase.FirebaseApp
 import ua.lviv.iot.R
-import ua.lviv.iot.ui.balance.BalanceActivity
-import ua.lviv.iot.ui.profile.ProfileActivity
 import ua.lviv.iot.ui.quests.QuestsMenuActivity
-import ua.lviv.iot.ui.rating.RatingActivity
+import ua.lviv.iot.ui.user.UserActivity
+import ua.lviv.iot.utils.LVIV_LAT
+import ua.lviv.iot.utils.LVIV_LNG
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -55,9 +54,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivity(Intent(this, QuestsMenuActivity::class.java))
         }
 
-        mBalanceBtn.setOnClickListener { startActivity(Intent(this, BalanceActivity::class.java)) }
-        mProfileBtn.setOnClickListener { startActivity(Intent(this, ProfileActivity::class.java)) }
-        mRatingBtn.setOnClickListener { startActivity(Intent(this, RatingActivity::class.java)) }
+        val nextIntent = Intent(this, UserActivity::class.java)
+
+        mBalanceBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", "balance")) }
+        mProfileBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", "profile")) }
+        mRatingBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", "rating")) }
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {
