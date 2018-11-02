@@ -1,16 +1,25 @@
 package ua.lviv.iot.ui.quest
 
+import android.Manifest
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.provider.MediaStore.Images.Media.getBitmap
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
@@ -35,6 +44,7 @@ import com.androidmapsextensions.PolylineOptions
 import com.androidmapsextensions.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.database.DatabaseError
+import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
 
@@ -42,19 +52,18 @@ import ua.lviv.iot.model.map.Quest
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback {
 
 
-    private lateinit var mMap: GoogleMap
-    var numberOfPoint: TextView? = null
-    private val locationManager: LocationManager? = null
-    private val firstCameraOnMyPosition = true
-    private val LOCATION_PERMISSION_REQUEST_CODE = 111
     private val DEFAULT_LATITUDE = 49.841787
     private val DEFAULT_LONGITUDE = 24.031686
-    private val mPositionMarker: Marker? = null
+    private val defaultLatLng = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+    private lateinit var mMap: GoogleMap
+    var numberOfPoint: TextView? = null
+    private var firstCameraOnMyPosition = true
+    private val LOCATION_PERMISSION_REQUEST_CODE = 111
+    private var mPositionMarker: Marker? = null
     private val myLocationButton: View? = null
     private val screen1: View? = null
     private val screen2: View? = null
     private val drawerLayout: DrawerLayout? = null
-    private val currentLatLng = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
     private val firebaseDataManager = FirebaseDataManager.getInstance()
     private val firebaseAuthManager: FirebaseLoginManager? = null
     private val navigationView: NavigationView? = null
@@ -84,6 +93,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private val currentUserId: String? = null
     private val markersList = ArrayList<Marker>()
     private var requestList = ArrayList<RequestClass>()
+    private lateinit var questViewModel : QuestViewModel
+    private var userCurrentLocation = defaultLatLng
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +104,17 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
 
+        questViewModel = ViewModelProviders.of(this).get(QuestViewModel::class.java)
+        initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
+        questViewModel.userCurrentLocation.observe(this, Observer {
+            userCurrentLocation = it!!
+            if(mPositionMarker != null) {
+                mPositionMarker!!.position = userCurrentLocation
+            }
+        })
 
+        fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@QuestActivity, Observer {
+            observe(it)})
     }
 
     /**
@@ -121,15 +142,52 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         secretMarkerInflated = inflater!!.inflate(R.layout.marker, null)
         distanceBetweenPoint = markerInflated!!.findViewById(R.id.text_text_view) as TextView
         drawRoute(currentQuestName!!)
-        // Add a marker in Sydney and move the camera
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng())
+
+        //set user marker and user location button
+        if (fineLocationEnabled()||coarceLocationEnabled()) {
+            setUserLocationMarker(mMap)
+            mMap.getUiSettings().setMyLocationButtonEnabled(true)
+
+        }
     }
 
-    private fun getMyLocation(location: Location): LatLng {
-        val latitude = location.latitude
-        val longitude = location.longitude
-        return LatLng(latitude, longitude)
+    //USER CURRENT LOCATION---------------------------------------------------------------------------
+
+    private fun fineLocationEnabled() : Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
+    private fun coarceLocationEnabled() : Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun initUserLocationUpdates(questViewModel: QuestViewModel, locationSystemService: Any) {
+        if(fineLocationEnabled()||coarceLocationEnabled()) {
+            questViewModel.checkLocationUpdates(locationSystemService)
+        }
+    }
+
+    private fun setUserLocationMarker(mMap: GoogleMap) {
+        mMap.setMyLocationEnabled(false)
+        mPositionMarker = mMap.addMarker(MarkerOptions()
+                .flat(false)
+                .icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.quest_user_location_marker)))
+                .anchor(0.5f, 0.5f)
+                .position(userCurrentLocation)
+                .draggable(false))
+    }
+
+    private fun getBitmap(drawableRes: Int) : Bitmap {
+        var draw = resources.getDrawable(drawableRes, null)
+        var canvas = Canvas()
+        var bitmap = Bitmap.createBitmap(draw.intrinsicWidth, draw.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        canvas.setBitmap(bitmap);
+        draw.setBounds(0, 0, draw.intrinsicWidth, draw.intrinsicHeight)
+        draw.draw(canvas)
+        return bitmap
+    }
+
+
+    //-----------------------------------------------------------------------------------------------
 
     fun drawRoute(questName: String) {
 
@@ -304,15 +362,15 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     }
 
     private fun changeMarkerListener() {
-        mMap.setOnMarkerClickListener(object: GoogleMap.OnMarkerClickListener {
 
 
-            override fun onMarkerClick(marker: Marker): Boolean {
-                val locationStructure = marker.getData<LocationStructure>()
-                if (!locationStructure.isSecret) {
-                    val number = locationStructure.locationID
-                    changedMarkerNumber!!.text = number.toString()
-                    cMarkerdistanceBetweenPoint!!.text = "done"
+
+
+                //val locationStructure = marker.getData<LocationStructure>()
+                //if (!locationStructure.isSecret) {
+                  //  val number = locationStructure.locationID
+                            //changedMarkerNumber!!.text = number.toString()
+                    //cMarkerdistanceBetweenPoint!!.text = "done"
 //                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(changedMarkerInflated)));
 //                    mBottomSheetBehavior!!.isHideable = true
 //                    mBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -340,12 +398,12 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 //                    }, 300)
 //                } else {
 //
-                }
 
-                return true
 
-            }
-        })
+
+
+
+
     }
 
 
