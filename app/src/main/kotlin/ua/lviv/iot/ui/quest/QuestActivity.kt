@@ -57,8 +57,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private val defaultLatLng = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
     private lateinit var mMap: GoogleMap
     var numberOfPoint: TextView? = null
-    private var firstCameraOnMyPosition = true
-    private val LOCATION_PERMISSION_REQUEST_CODE = 111
     private var mPositionMarker: Marker? = null
     private val myLocationButton: View? = null
     private val screen1: View? = null
@@ -171,7 +169,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         mPositionMarker = mMap.addMarker(MarkerOptions()
                 .flat(false)
                 .icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.quest_user_location_marker)))
-                .anchor(0.5f, 0.5f)
+                .anchor(0.5f, 1.0f)
                 .position(userCurrentLocation)
                 .draggable(false))
     }
