@@ -74,10 +74,7 @@ class UserActivity : AppCompatActivity(), ObservableScrollViewCallbacks {
                     }
                 })
             } else {
-                //startActivity(Intent(this, LoginActivity::class.java))
-                setContentView(R.layout.activity_user)
-                initToolbar()
-                initFragment()
+                startActivity(Intent(this, LoginActivity::class.java))
             }
         })
 
