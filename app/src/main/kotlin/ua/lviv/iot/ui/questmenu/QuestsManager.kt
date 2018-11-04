@@ -1,4 +1,4 @@
-package ua.lviv.iot.ui.quests
+package ua.lviv.iot.ui.questmenu
 
 import ua.lviv.iot.model.map.Quest
 

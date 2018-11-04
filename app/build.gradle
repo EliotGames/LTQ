@@ -74,6 +74,8 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$android_support_version"
     // Circle imageView
     implementation "de.hdodenhof:circleimageview:2.2.0"
+    // Scrollable view
+    implementation "com.github.ksoichiro:android-observablescrollview:1.5.0"
 
 }
 apply plugin: 'com.google.gms.google-services'

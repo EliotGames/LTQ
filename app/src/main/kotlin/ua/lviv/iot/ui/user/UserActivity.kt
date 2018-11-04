@@ -1,5 +1,6 @@
 package ua.lviv.iot.ui.user
 
+import android.animation.LayoutTransition
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -9,18 +10,30 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.widget.Button
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks
+import com.github.ksoichiro.android.observablescrollview.ScrollState
 import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.ui.balance.BalanceFragment
 import ua.lviv.iot.ui.login.LoginActivity
 import ua.lviv.iot.ui.profile.ProfileFragment
 import ua.lviv.iot.ui.rating.RatingFragment
+import ua.lviv.iot.utils.USER_FRAGMENT_BALANCE
+import ua.lviv.iot.utils.USER_FRAGMENT_PROFILE
+import ua.lviv.iot.utils.USER_FRAGMENT_RATING
 
-class UserActivity : AppCompatActivity() {
+class UserActivity : AppCompatActivity(), ObservableScrollViewCallbacks {
+    private val TAG = "User Activity"
     private lateinit var profileViewModel: UserViewModel
+
+    private lateinit var observableScrollView: ObservableScrollView
+    private lateinit var imageListView: View
+    private lateinit var containerLayout: ViewGroup
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,14 +45,19 @@ class UserActivity : AppCompatActivity() {
             if (parentIt == EventResultStatus.EVENT_SUCCESS) {
                 setContentView(R.layout.activity_user)
                 initToolbar()
-                init()
+                initFragment()
+
+                containerLayout = findViewById(R.id.rl_user_container)
+                observableScrollView = findViewById(R.id.observablescrollview_user)
+                imageListView = findViewById(R.id.horizontalscrollview_user)
+                containerLayout.layoutTransition.enableTransitionType(LayoutTransition.CHANGING)
+                observableScrollView.setScrollViewCallbacks(this)
+
                 //get current user data
                 profileViewModel.getCurrentUser()
                 profileViewModel.currentUserData.observe(this@UserActivity, Observer {
-                    val userSexTV = findViewById<TextView>(R.id.user_sex)
-                    val userNameTV = findViewById<TextView>(R.id.user_name)
+                    val userNameTV = findViewById<TextView>(R.id.tv_user_name)
 
-                    userSexTV.text = it?.sex.toString()
                     userNameTV.text = it!!.name
                 })
 
@@ -56,7 +74,10 @@ class UserActivity : AppCompatActivity() {
                     }
                 })
             } else {
-                startActivity(Intent(this, LoginActivity::class.java))
+                //startActivity(Intent(this, LoginActivity::class.java))
+                setContentView(R.layout.activity_user)
+                initToolbar()
+                initFragment()
             }
         })
 
@@ -65,7 +86,7 @@ class UserActivity : AppCompatActivity() {
         })
     }
 
-    private fun init() {
+    private fun initFragment() {
         // choosing the fragment to display
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
@@ -75,20 +96,20 @@ class UserActivity : AppCompatActivity() {
 
         if (extras != null) {
             when (extras.getString("fragment")) {
-                "profile" -> {
+                USER_FRAGMENT_PROFILE -> {
                     fragment = ProfileFragment()
                     fragmentTransaction.replace(R.id.fl_user_fragment_container, fragment)
                 }
-                "rating" -> {
+                USER_FRAGMENT_RATING -> {
                     fragment = RatingFragment()
                     fragmentTransaction.replace(R.id.fl_user_fragment_container, fragment)
                 }
-                "balance" -> {
+                USER_FRAGMENT_BALANCE -> {
                     fragment = BalanceFragment()
                     fragmentTransaction.replace(R.id.fl_user_fragment_container, fragment)
                 }
                 else -> {
-                    Log.e("User Activity", "No fragment is mentioned in intent")
+                    Log.e(TAG, "No fragment is mentioned in intent")
                 }
             }
         }
@@ -100,5 +121,24 @@ class UserActivity : AppCompatActivity() {
         toolbar.title = "User page"
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onUpOrCancelMotionEvent(scrollState: ScrollState?) {
+        if (scrollState == ScrollState.DOWN) {
+            Log.d("SCROLL STATE", "UP")
+            imageListView.animate().translationY(0f)
+        } else if (scrollState == ScrollState.UP) {
+            Log.d("SCROLL STATE", "DOWN")
+            imageListView.animate()
+                    .translationY(-imageListView.height.toFloat())
+                    .duration = 300
+        }
+    }
+
+    override fun onScrollChanged(scrollY: Int, firstScroll: Boolean, dragging: Boolean) {
+
+    }
+
+    override fun onDownMotionEvent() {
     }
 }

@@ -14,10 +14,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.firebase.FirebaseApp
 import ua.lviv.iot.R
-import ua.lviv.iot.ui.quests.QuestsMenuActivity
+import ua.lviv.iot.ui.questmenu.QuestsMenuActivity
 import ua.lviv.iot.ui.user.UserActivity
-import ua.lviv.iot.utils.LVIV_LAT
-import ua.lviv.iot.utils.LVIV_LNG
+import ua.lviv.iot.utils.*
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -56,9 +55,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val nextIntent = Intent(this, UserActivity::class.java)
 
-        mBalanceBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", "balance")) }
-        mProfileBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", "profile")) }
-        mRatingBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", "rating")) }
+        mBalanceBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", USER_FRAGMENT_BALANCE)) }
+        mProfileBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", USER_FRAGMENT_PROFILE)) }
+        mRatingBtn.setOnClickListener { startActivity(nextIntent.putExtra("fragment", USER_FRAGMENT_RATING)) }
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {

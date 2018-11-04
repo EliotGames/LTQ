@@ -1,4 +1,4 @@
-package ua.lviv.iot.ui.quests
+package ua.lviv.iot.ui.questmenu
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView

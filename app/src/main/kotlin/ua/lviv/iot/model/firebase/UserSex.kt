@@ -47,5 +47,12 @@ enum class UserSex {
     TRANSSEXUAL_MAN,
     TRANSSEXUAL_PERSON,
     TRANSSEXUAL_WOMAN,
-    TWO_SPIRIT
+    TWO_SPIRIT;
+
+    override fun toString(): String {
+        var stringValue = super.toString()
+        stringValue.replace("_", " ")
+        stringValue = stringValue.substring(0, 1) + stringValue.substring(1).toLowerCase()
+        return stringValue
+    }
 }

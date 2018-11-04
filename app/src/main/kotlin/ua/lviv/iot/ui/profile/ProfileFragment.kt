@@ -32,8 +32,11 @@ class ProfileFragment : Fragment() {
                 //get current user data
                 userViewModel.getCurrentUser()
                 userViewModel.currentUserData.observe(this@ProfileFragment, Observer {
-                    val userEmailET = view.findViewById<EditText>(R.id.user_email)
+                    val userEmailET = view.findViewById<EditText>(R.id.et_profile_email)
+                    val userSexET = view.findViewById<EditText>(R.id.et_profile_sex)
+
                     userEmailET.setText(it!!.email, TextView.BufferType.EDITABLE)
+                    userSexET.setText(it.sex.toString(), TextView.BufferType.EDITABLE)
                 })
 
                 //init and setOnClickListener on Logout button

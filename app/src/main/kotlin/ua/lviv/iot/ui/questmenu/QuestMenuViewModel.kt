@@ -1,4 +1,4 @@
-package ua.lviv.iot.ui.quests
+package ua.lviv.iot.ui.questmenu
 
 import android.arch.lifecycle.ViewModel
 import ua.lviv.iot.model.firebase.Repository

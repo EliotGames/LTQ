@@ -28,7 +28,7 @@
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.quests.QuestsMenuActivity"
+            android:name=".ui.questmenu.QuestsMenuActivity"
             android:parentActivityName=".ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity
