@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
+import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
@@ -28,6 +29,7 @@ import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
 //import sun.management.VMOptionCompositeData.getOrigin
 import android.util.Log
+import android.widget.Toast
 import com.akexorcist.googledirection.model.Direction
 import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.constant.TransportMode
@@ -47,6 +49,7 @@ import ua.lviv.iot.utils.MarkerType
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback {
 
 
+    private val MY_LOCATION_PERMISSIONS_REQUEST = 121
     private val DEFAULT_LATITUDE = 49.841787
     private val DEFAULT_LONGITUDE = 24.031686
     private val defaultLatLng = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
@@ -133,8 +136,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         //set user marker and user location button
         if (fineLocationEnabled()||coarceLocationEnabled()) {
             setUserLocationMarker(mMap)
-            mMap.uiSettings.isMyLocationButtonEnabled = true
-
         }
     }
 
@@ -150,6 +151,29 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private fun initUserLocationUpdates(questViewModel: QuestViewModel, locationSystemService: Any) {
         if(fineLocationEnabled()||coarceLocationEnabled()) {
             questViewModel.checkLocationUpdates(locationSystemService)
+        }
+        else requestPermission()
+    }
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                MY_LOCATION_PERMISSIONS_REQUEST)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            MY_LOCATION_PERMISSIONS_REQUEST -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
+                    setUserLocationMarker(mMap)
+                } else {
+                    Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
         }
     }
 

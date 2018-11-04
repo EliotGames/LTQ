@@ -15,4 +15,7 @@
     <string name="network_failed" translatable="false">Connection failed! Please, check yout network</string>
     <string name="default_marker_distance_value">start</string>
 
+    <!--Maps-->
+    <string name="permission_denied">LTQ does not have ACCESS_LOCATION permission! Please change this parameter in your settings!</string>
+
 </resources>
