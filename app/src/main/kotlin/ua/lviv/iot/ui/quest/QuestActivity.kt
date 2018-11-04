@@ -10,13 +10,8 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
-import android.provider.MediaStore.Images.Media.getBitmap
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.content.ContextCompat
@@ -44,9 +39,9 @@ import com.androidmapsextensions.PolylineOptions
 import com.androidmapsextensions.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.database.DatabaseError
-import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
+import ua.lviv.iot.utils.MarkerType
 
 
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback {
@@ -56,33 +51,31 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private val DEFAULT_LONGITUDE = 24.031686
     private val defaultLatLng = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
     private lateinit var mMap: GoogleMap
-    var numberOfPoint: TextView? = null
+    private var numberOfNormalMarker: TextView? = null
+    private var numberOfBlackMarker: TextView? = null
     private var mPositionMarker: Marker? = null
     private val myLocationButton: View? = null
-    private val screen1: View? = null
-    private val screen2: View? = null
     private val drawerLayout: DrawerLayout? = null
     private val firebaseDataManager = FirebaseDataManager.getInstance()
     private val firebaseAuthManager: FirebaseLoginManager? = null
     private val navigationView: NavigationView? = null
     private var data = ArrayList<LatLng>()
-    private val changedMarkerInflated: View? = null
-    private val changedMarkerNumber: TextView? = null
-    private var distanceBetweenPoint: TextView? = null
-    private val cMarkerdistanceBetweenPoint: TextView? = null
+    private var distanceNormalMarker: TextView? = null
+    private var distanceBlackMarker: TextView? = null
     private var inflater: LayoutInflater? = null
-    private var markerInflated: View? = null
+    private var normalMarkerInflated: View? = null
+    private var blackMarkerInflated: View? = null
     private var secretMarkerInflated: View? = null
     private val polylinesList = ArrayList<LatLng>()
     private var origin: LatLng? = null
     private var dest: LatLng? = null
     private var counter: Int = 0
     private var requestIndex = 0
-    private val bottomSheet: View? = null
-    private val mBottomSheetBehavior: BottomSheetBehavior<*>? = null
-    private val bottomSheetName: TextView? = null
-    private val bottomSheetInfo: TextView? = null
-    private val bottomSheetSkipButton: Button? = null
+    private var bottomSheet: View? = null
+    private var mBottomSheetBehavior: BottomSheetBehavior<*>? = null
+    private var bottomSheetName: TextView? = null
+    private var bottomSheetInfo: TextView? = null
+    private var bottomSheetSkipButton: Button? = null
     private val isQuestOn: Boolean = false
     private val currentQuestCategory: Int = 0
     private val distanceList = ArrayList<String>()
@@ -97,11 +90,10 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quest)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        currentQuestName = intent.getStringExtra("questName")
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
-
         questViewModel = ViewModelProviders.of(this).get(QuestViewModel::class.java)
         initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
         questViewModel.userCurrentLocation.observe(this, Observer {
@@ -110,20 +102,12 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 mPositionMarker!!.position = userCurrentLocation
             }
         })
-
+        bottomSheetInit()
         fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@QuestActivity, Observer {
             observe(it)})
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         try {
@@ -133,18 +117,23 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
             e.message
         }
         inflater = applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        markerInflated = inflater!!.inflate(R.layout.marker, null)
-        numberOfPoint = markerInflated!!.findViewById(R.id.number_text_view) as TextView
-        val intent = intent
-        currentQuestName = intent.getStringExtra("questName")
+
+        normalMarkerInflated = inflater!!.inflate(R.layout.marker, null)
+        numberOfNormalMarker = normalMarkerInflated!!.findViewById(R.id.marker_number) as TextView
+        distanceNormalMarker = normalMarkerInflated!!.findViewById(R.id.marker_distance) as TextView
+
+        blackMarkerInflated = inflater!!.inflate(R.layout.black_marker, null)
+        numberOfBlackMarker = blackMarkerInflated!!.findViewById(R.id.changed_marker_number) as TextView
+        distanceBlackMarker = blackMarkerInflated!!.findViewById(R.id.changed_marker_distance) as TextView
+
         secretMarkerInflated = inflater!!.inflate(R.layout.marker, null)
-        distanceBetweenPoint = markerInflated!!.findViewById(R.id.text_text_view) as TextView
+
         drawRoute(currentQuestName!!)
 
         //set user marker and user location button
         if (fineLocationEnabled()||coarceLocationEnabled()) {
             setUserLocationMarker(mMap)
-            mMap.getUiSettings().setMyLocationButtonEnabled(true)
+            mMap.uiSettings.isMyLocationButtonEnabled = true
 
         }
     }
@@ -328,12 +317,12 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         for (i in locationStructureList.indices) {
             val j = i + 1
             if (!locationStructureList[i].isSecret) {
-                numberOfPoint!!.text = j.toString()
-                distanceBetweenPoint!!.text = locationStructureList[i].distanceToPrevious
+                numberOfNormalMarker!!.text = j.toString()
+                distanceNormalMarker!!.text = locationStructureList[i].distanceToPrevious
                 val marker = mMap.addMarker(MarkerOptions()
                         .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon))
                         .anchor(0.5f, 0.5f)
-                        .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(markerInflated!!))))
+                        .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!))))
                 locationStructureList[i].locationID = i + 1
                 marker.setData(locationStructureList[i])
                 markersList.add(marker)
@@ -360,48 +349,79 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     }
 
     private fun changeMarkerListener() {
+        mMap.setOnMarkerClickListener (
+            object: GoogleMap.OnMarkerClickListener {
 
+                override fun onMarkerClick(marker: Marker): Boolean {
+                    if(mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_HIDDEN){
+                        val locationStructure = marker.getData<LocationStructure>()
+                        if (!locationStructure.isSecret) {
+                            changeMarkerView(marker, MarkerType.BLACK)
+                            mBottomSheetBehavior!!.isHideable = true
+                            mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+                            bottomSheetInfo!!.text = locationStructure.locationDescription
+                            bottomSheetName!!.text = locationStructure.locationName
+                            bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
+                                override fun onClick(v: View) {
+                                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+                                    changeMarkerView(marker, MarkerType.NORMAL)
+                                }
+                            })
+                            mBottomSheetBehavior!!.setBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+                                override fun onStateChanged(view: View, currentState: Int) {
+                                    if(currentState == BottomSheetBehavior.STATE_HIDDEN){
+                                        changeMarkerView(marker, MarkerType.NORMAL)
+                                    }
+                                }
 
+                                override fun onSlide(p0: View, p1: Float) {
+                                }
 
+                            })
 
-                //val locationStructure = marker.getData<LocationStructure>()
-                //if (!locationStructure.isSecret) {
-                  //  val number = locationStructure.locationID
-                            //changedMarkerNumber!!.text = number.toString()
-                    //cMarkerdistanceBetweenPoint!!.text = "done"
-//                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(changedMarkerInflated)));
-//                    mBottomSheetBehavior!!.isHideable = true
-//                    mBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-//                    bottomSheetName!!.text = locationStructure.locationName
-//                    bottomSheetInfo!!.text = locationStructure.locationDescription
-//                    bottomSheetSkipButton!!.setOnClickListener(object: View.OnClickListener {
-//                        override fun onClick(v: View) {
-//                            mBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN;
-//                        }
-//                    })
-//
-//
-//                    runOnUiThread(object: Runnable() {
-//                        override fun run() {
-//
-//
-//                        }
-//                    })
-//
-//                    val handler = Handler()
-//                    handler.postDelayed(object: Runnable {
-//                        override fun run() {
-//                            mBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED;
-//                        }
-//                    }, 300)
-//                } else {
-//
+                            val handler = Handler()
+                            handler.postDelayed(object : Runnable {
+                                override fun run() {
+                                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED;
+                                }
+                            }, 300)
+                        }
+                    }
+                    return true
+                }
+            }
+        )
+        }
 
+    private fun bottomSheetInit() {
+        bottomSheet = findViewById(R.id.bottom_sheet)
+        bottomSheetName = findViewById(R.id.bottom_sheet_name)
+        bottomSheetInfo = findViewById(R.id.bottom_sheet_info)
+        bottomSheetSkipButton = findViewById(R.id.bottom_sheet_skip)
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        mBottomSheetBehavior!!.isHideable = true
+        mBottomSheetBehavior!!.peekHeight = 384
+        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+    }
 
+    private fun changeMarkerView(marker: Marker, markerTypeToChange: MarkerType){
+        val distance = marker.getData<LocationStructure>().distanceToPrevious
+        val locationId = marker.getData<LocationStructure>().locationID
+        when(markerTypeToChange){
+            MarkerType.NORMAL -> {
+                distanceNormalMarker!!.text = distance
+                numberOfNormalMarker!!.text = locationId!!.toString()
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!)))
+            }
+            MarkerType.BLACK -> {
+                distanceBlackMarker!!.text = distance
+                numberOfBlackMarker!!.text = locationId!!.toString()
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(blackMarkerInflated!!)))
+            }
+            MarkerType.SECRET -> {
 
-
-
-
+            }
+        }
     }
 
 

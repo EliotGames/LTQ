@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="40dp"
     android:layout_height="40dp"
-    android:background="@drawable/circle_shape"
+    android:background="@drawable/changed_circle_shape"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/marker_number"
+        android:id="@+id/changed_marker_number"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:width="10dp"
@@ -17,14 +17,14 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/marker_distance"
+        android:id="@+id/changed_marker_distance"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:width="26dp"
         android:height="10dp"
         android:gravity="center"
         android:lineSpacingMultiplier="1.11"
-        android:text="@string/default_marker_distance_value"
+        android:text="start"
         android:textColor="#ffffff"
-        android:textSize="@dimen/text_size_in_bottom_sheet_description" />
+        android:textSize="9sp" />
 </LinearLayout>

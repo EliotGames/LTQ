@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#7d66da</color> <!-- 5d4eb9 -->
     <color name="colorAccent">#FF4081</color>
 
+    <color name="colorText">#FFFFFF</color>
+    <color name="colorButton">#907AEC</color>
+    <color name="colorBackground">#E6FFFFFF</color>
+    <color name="colorTextGray">#4A4A4A</color>
+    <color name="colorBottomSheet">#F27D7D7D</color>
 </resources>

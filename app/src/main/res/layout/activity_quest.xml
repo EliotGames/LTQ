@@ -1,9 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appRetrofit="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.androidmapsextensions.SupportMapFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.quest.QuestActivity" />
+    appRetrofit:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="ua.lviv.iot.ui.quest.QuestActivity">
+
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:theme="@style/AppTheme.NoActionBar"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.androidmapsextensions.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.example.android.ltq.MainActivity"/>
+
+
+        <!--<android.support.design.widget.FloatingActionButton-->
+            <!--android:id="@+id/myLocationButton"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_marginEnd="20dp"-->
+            <!--android:layout_below="@id/appBarLayout"-->
+            <!--app:backgroundTint="@color/colorText"-->
+            <!--android:src="@drawable/my_location_icon"-->
+            <!--app:fabSize="mini"-->
+            <!--/>-->
+
+    </RelativeLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="true"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+        android:background="@color/colorBottomSheet">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/bottom_sheet_name"
+                    android:layout_width="269dp"
+                    android:layout_height="match_parent"
+                    android:padding="16dp"
+                    android:text="Name"
+                    android:textAllCaps="true"
+                    android:textColor="@color/colorText"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/bottom_sheet_skip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginTop="21dp"
+                    android:text="skip"
+                    android:background="@color/colorBottomSheet"
+                    android:textColor="@color/colorText"
+                    android:shadowColor="@color/colorText"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/bottom_sheet_info"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/colorText"
+                android:padding="16dp"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

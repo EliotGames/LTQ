@@ -13,5 +13,6 @@
     <!--Network status-->
     <string name="title_activity_quest">Map</string>
     <string name="network_failed" translatable="false">Connection failed! Please, check yout network</string>
+    <string name="default_marker_distance_value">start</string>
 
 </resources>
