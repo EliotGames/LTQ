@@ -78,21 +78,7 @@ class UserLocationManager(locationSystemService: Any) {
         }
     }
 
-    private fun rad(x: Double) : Double {
-        return x * Math.PI / 180
-    }
-
-    private fun getDistance(p1 : LatLng, p2 : LatLng) : Double {
-        val r = 6378137 // Earth’s mean radius in meter
-        var dLat = rad(p2.latitude - p1.latitude)
-        var dLong = rad(p2.longitude - p1.longitude)
-        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(rad(p1.latitude)) * Math.cos(rad(p2.longitude)) *
-                Math.sin(dLong / 2) * Math.sin(dLong / 2)
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        var d = r * c
-        return d // returns the distance in meter
-    }
+    //check
 
     interface UserLocationListener {
         fun onSuccess(latLng: LatLng)
@@ -107,6 +93,24 @@ class UserLocationManager(locationSystemService: Any) {
             val longitude = location.longitude
             return LatLng(latitude, longitude)
         }
+
+        //method to find distance between locations---------------------------------------------------------
+        fun rad(x: Double) : Double {
+            return x * Math.PI / 180
+        }
+
+        fun getDistance(p1 : LatLng, p2 : LatLng) : Double {
+            val r = 6378137 // Earth’s mean radius in meter
+            var dLat = rad(p2.latitude - p1.latitude)
+            var dLong = rad(p2.longitude - p1.longitude)
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(rad(p1.latitude)) * Math.cos(rad(p2.longitude)) *
+                    Math.sin(dLong / 2) * Math.sin(dLong / 2)
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+            var d = r * c
+            return d // returns the distance in meter
+        }
+        //---------------------------------------------------------------------------------------------------
     }
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }

@@ -12,6 +12,8 @@ import android.os.Bundle
 import com.google.android.gms.maps.CameraUpdateFactory
 import android.location.LocationManager
 import android.util.Log
+import ua.lviv.iot.model.EventResultStatus
+import ua.lviv.iot.model.map.LocationCheckInManager
 import ua.lviv.iot.model.map.UserLocationManager
 import ua.lviv.iot.model.map.UserLocationManager.Companion.getMyLocation
 
@@ -33,9 +35,10 @@ class QuestViewModel(): ViewModel(){
     private val distanceList = ArrayList<String>()
     private var locationListFromDatabase:  List<LocationStructure>? = null
     var userCurrentLocation = MutableLiveData<LatLng>().default(defaultLatLng)
+    var locationForCheckInAvailable = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
 
 
-    fun checkLocationUpdates(locationSystemService: Any) {
+    fun checkUserLocationUpdates(locationSystemService: Any) {
         UserLocationManager(locationSystemService).checkLocationUpdates(object : UserLocationManager.UserLocationListener {
             override fun onSuccess(latLng: LatLng) {
                 userCurrentLocation.value = latLng
@@ -43,6 +46,15 @@ class QuestViewModel(): ViewModel(){
 
             override fun onError() {
                 Log.e("UserLocation", "Some problems with user location!")
+            }
+
+        })
+    }
+
+    fun locationCheckInListener(locationsList: ArrayList<LatLng>) {
+        LocationCheckInManager(locationsList).locationCheckInListener(userCurrentLocation.value!!, object: LocationCheckInManager.LocationCheckInListener{
+            override fun onChange(result: EventResultStatus) {
+                locationForCheckInAvailable.value = result
             }
 
         })

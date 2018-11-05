@@ -42,6 +42,7 @@ import com.androidmapsextensions.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.database.DatabaseError
 import ua.lviv.iot.R
+import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.utils.MarkerType
 
@@ -103,6 +104,14 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
             userCurrentLocation = it!!
             if(mPositionMarker != null) {
                 mPositionMarker!!.position = userCurrentLocation
+                if(locationListFromDatabase != null) {
+                    questViewModel.locationCheckInListener(getLatLngList(locationListFromDatabase!!))
+                }
+            }
+        })
+        questViewModel.locationForCheckInAvailable.observe(this, Observer {
+            if(it == EventResultStatus.EVENT_SUCCESS) {
+                Toast.makeText(this, "CheckIn for this location is available!", Toast.LENGTH_SHORT).show()
             }
         })
         bottomSheetInit()
@@ -150,7 +159,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 
     private fun initUserLocationUpdates(questViewModel: QuestViewModel, locationSystemService: Any) {
         if(fineLocationEnabled()||coarceLocationEnabled()) {
-            questViewModel.checkLocationUpdates(locationSystemService)
+            questViewModel.checkUserLocationUpdates(locationSystemService)
         }
         else requestPermission()
     }
