@@ -12,7 +12,8 @@ import ua.lviv.iot.R
 
 class UserLocationManager(locationSystemService: Any) {
 
-    private lateinit var previousLatLng : LatLng
+    private var DEFAULT_VALUE_LATLNG = LatLng(0.0, 0.0)
+    private var previousLatLng = DEFAULT_VALUE_LATLNG
     private var coordinateJumpCounter = 0
 
     private var locationManager: LocationManager? = locationSystemService as LocationManager
@@ -36,7 +37,7 @@ class UserLocationManager(locationSystemService: Any) {
                     listener.onError()
                 }
                 else {
-                    listener.onSuccess(p0)
+                    listener.onSuccess(markerJumpCheck(p0))
                 }
             }
 
@@ -54,23 +55,26 @@ class UserLocationManager(locationSystemService: Any) {
     }
 
     //check location jumping ???
-    /*private fun markerJumpCheck(currentLatLng: LatLng) : LatLng {
-        if(previousLatLng == null) {
-            previousLatLng = currentLatLng
-            return currentLatLng
-        }
-        else if(getDistance(currentLatLng, previousLatLng) <= 5) {
-            previousLatLng = currentLatLng
-            return currentLatLng
-        }
-        else if(coordinateJumpCounter > 3){
-            coordinateJumpCounter = 0
-            previousLatLng = currentLatLng
-            return currentLatLng
-        }
-        else {
-            coordinateJumpCounter++
-            return previousLatLng
+    private fun markerJumpCheck(currentLocation: Location) : LatLng {
+        var currentLatLng = getMyLocation(currentLocation)
+        when {
+            previousLatLng == DEFAULT_VALUE_LATLNG -> {
+                previousLatLng = currentLatLng
+                return currentLatLng
+            }
+            getDistance(currentLatLng, previousLatLng) <= 5 -> {
+                previousLatLng = currentLatLng
+                return currentLatLng
+            }
+            coordinateJumpCounter > 3 -> {
+                coordinateJumpCounter = 0
+                previousLatLng = currentLatLng
+                return currentLatLng
+            }
+            else -> {
+                coordinateJumpCounter++
+                return previousLatLng
+            }
         }
     }
 
@@ -86,14 +90,23 @@ class UserLocationManager(locationSystemService: Any) {
                 Math.cos(rad(p1.latitude)) * Math.cos(rad(p2.longitude)) *
                 Math.sin(dLong / 2) * Math.sin(dLong / 2)
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        var d = r * c;
+        var d = r * c
         return d // returns the distance in meter
-    }*/
+    }
 
     interface UserLocationListener {
-        fun onSuccess(location: Location)
+        fun onSuccess(latLng: LatLng)
 
         fun onError()
+    }
+
+    companion object {
+        //get coordinates from Location and return LatLng
+        fun getMyLocation(location: Location): LatLng {
+            val latitude = location.latitude
+            val longitude = location.longitude
+            return LatLng(latitude, longitude)
+        }
     }
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }

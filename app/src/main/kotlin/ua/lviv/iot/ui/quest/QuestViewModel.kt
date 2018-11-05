@@ -13,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import android.location.LocationManager
 import android.util.Log
 import ua.lviv.iot.model.map.UserLocationManager
+import ua.lviv.iot.model.map.UserLocationManager.Companion.getMyLocation
 
 
 class QuestViewModel(): ViewModel(){
@@ -36,8 +37,8 @@ class QuestViewModel(): ViewModel(){
 
     fun checkLocationUpdates(locationSystemService: Any) {
         UserLocationManager(locationSystemService).checkLocationUpdates(object : UserLocationManager.UserLocationListener {
-            override fun onSuccess(location: Location) {
-                userCurrentLocation.value = getMyLocation(location)
+            override fun onSuccess(latLng: LatLng) {
+                userCurrentLocation.value = latLng
             }
 
             override fun onError() {
@@ -47,11 +48,7 @@ class QuestViewModel(): ViewModel(){
         })
     }
 
-    private fun getMyLocation(location: Location): LatLng {
-        val latitude = location.latitude
-        val longitude = location.longitude
-        return LatLng(latitude, longitude)
-    }
+
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }
 }
