@@ -69,11 +69,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private var normalMarkerInflated: View? = null
     private var blackMarkerInflated: View? = null
     private var secretMarkerInflated: View? = null
-    private val polylinesList = ArrayList<LatLng>()
-    private var origin: LatLng? = null
-    private var dest: LatLng? = null
+    private val polylinesList = ArrayList<ArrayList<LatLng>>()
     private var counter: Int = 0
-    private var requestIndex = 0
     private var bottomSheet: View? = null
     private var mBottomSheetBehavior: BottomSheetBehavior<*>? = null
     private var bottomSheetName: TextView? = null
@@ -81,13 +78,12 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private var bottomSheetSkipButton: Button? = null
     private val isQuestOn: Boolean = false
     private val currentQuestCategory: Int = 0
-    private val distanceList = ArrayList<String>()
+    private val distanceList = ArrayList<ArrayList<String>>()
     private var locationListFromDatabase: List<LocationStructure>? = null
     private var currentQuestName: String? = null
     private val currentUserId: String? = null
     private val markersList = ArrayList<Marker>()
-    private var requestList = ArrayList<RequestClass>()
-    private lateinit var questViewModel : QuestViewModel
+    private lateinit var questViewModel: QuestViewModel
     private var userCurrentLocation = defaultLatLng
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,13 +97,14 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
         questViewModel.userCurrentLocation.observe(this, Observer {
             userCurrentLocation = it!!
-            if(mPositionMarker != null) {
+            if (mPositionMarker != null) {
                 mPositionMarker!!.position = userCurrentLocation
             }
         })
         bottomSheetInit()
         fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@QuestActivity, Observer {
-            observe(it)})
+            observe(it)
+        })
     }
 
 
@@ -134,25 +131,25 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         drawRoute(currentQuestName!!)
 
         //set user marker and user location button
-        if (fineLocationEnabled()||coarceLocationEnabled()) {
+        if (fineLocationEnabled() || coarceLocationEnabled()) {
             setUserLocationMarker(mMap)
         }
     }
 
     //USER CURRENT LOCATION---------------------------------------------------------------------------
 
-    private fun fineLocationEnabled() : Boolean {
+    private fun fineLocationEnabled(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
-    private fun coarceLocationEnabled() : Boolean {
+
+    private fun coarceLocationEnabled(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun initUserLocationUpdates(questViewModel: QuestViewModel, locationSystemService: Any) {
-        if(fineLocationEnabled()||coarceLocationEnabled()) {
+        if (fineLocationEnabled() || coarceLocationEnabled()) {
             questViewModel.checkLocationUpdates(locationSystemService)
-        }
-        else requestPermission()
+        } else requestPermission()
     }
 
     private fun requestPermission() {
@@ -187,11 +184,11 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 .draggable(false))
     }
 
-    private fun getBitmap(drawableRes: Int) : Bitmap {
-        var draw = resources.getDrawable(drawableRes, null)
-        var canvas = Canvas()
-        var bitmap = Bitmap.createBitmap(draw.intrinsicWidth, draw.intrinsicHeight, Bitmap.Config.ARGB_8888)
-        canvas.setBitmap(bitmap);
+    private fun getBitmap(drawableRes: Int): Bitmap {
+        val draw = resources.getDrawable(drawableRes, null)
+        val canvas = Canvas()
+        val bitmap = Bitmap.createBitmap(draw.intrinsicWidth, draw.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        canvas.setBitmap(bitmap)
         draw.setBounds(0, 0, draw.intrinsicWidth, draw.intrinsicHeight)
         draw.draw(canvas)
         return bitmap
@@ -200,13 +197,13 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 
     //-----------------------------------------------------------------------------------------------
 
-    fun drawRoute(questName: String) {
+    private fun drawRoute(questName: String) {
 
-        firebaseDataManager.questRetrieverByName(questName, object: FirebaseDataManager.DataRetrieverListenerForSingleQuestStructure {
+        firebaseDataManager.questRetrieverByName(questName, object : FirebaseDataManager.DataRetrieverListenerForSingleQuestStructure {
             override fun onSuccess(questStructure: Quest, locationsIdList: List<Int>) {
                 var currentQuestCategory = questStructure.parentCategoryID
-                firebaseDataManager.locationsListRetriever(locationsIdList, object: FirebaseDataManager.DataRetrieveListenerForLocationsStructure {
-                    override fun onSuccess(locationStructureList: List<LocationStructure> ) {
+                firebaseDataManager.locationsListRetriever(locationsIdList, object : FirebaseDataManager.DataRetrieveListenerForLocationsStructure {
+                    override fun onSuccess(locationStructureList: List<LocationStructure>) {
                         locationListFromDatabase = locationStructureList
                         prepareDataAndDrawingRoute(locationStructureList)
                     }
@@ -223,7 +220,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         })
     }
 
-    private fun focusMapOnMarkers(markersList: List<Marker> ){
+    private fun focusMapOnMarkers(markersList: List<Marker>) {
         val builder = LatLngBounds.builder()
         for (marker in markersList) {
             builder.include(marker.position)
@@ -238,12 +235,14 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         data = getLatLngList(locationStructureList)
         polylinesList.clear()
 
-        if (data.size == 8) {
-            counter = 1
+        counter = if (data.size == 8) {
+            1
         } else {
-            counter = data.size / 8 + 1
+            data.size / 8 + 1
         }
         var latlngList: List<LatLng>
+        var origin: LatLng?
+        var dest: LatLng?
         if (data.size > 7) {
             var i = 0
             while (i < data.size - 1) {
@@ -256,31 +255,25 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                     dest = LatLng(data[i + 7].latitude, data[i + 7].longitude)
                     latlngList = data.subList(i + 1, i + 7)
                 }
-                val request = RequestClass(origin!!, dest!!, latlngList)
-                requestList.add(request)
+                makeRequest(origin, latlngList, dest)
                 i += 7
             }
-
-            GoogleDirection.withServerKey("AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg")
-                    .from(requestList[0].origin)
-                    .and(requestList[0].waypoints)
-                    .to(requestList[0].dest)
-                    .transportMode(TransportMode.WALKING)
-                    .execute(this)
-
-
         } else {
             origin = LatLng(data[0].latitude, data[0].longitude)
             dest = LatLng(data[data.size - 1].latitude, data[data.size - 1].longitude)
             latlngList = data.subList(1, data.size - 1)
 
-            GoogleDirection.withServerKey("AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg")
-                    .from(origin)
-                    .and(latlngList)
-                    .to(dest)
-                    .transportMode(TransportMode.WALKING)
-                    .execute(this)
+            makeRequest(origin, latlngList, dest)
         }
+    }
+
+    private fun makeRequest(orig: LatLng, latlngList: List<LatLng>, destin: LatLng) {
+        GoogleDirection.withServerKey("AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg")
+                .from(orig)
+                .and(latlngList)
+                .to(destin)
+                .transportMode(TransportMode.WALKING)
+                .execute(this)
     }
 
     private fun getLatLngList(locationStructureList: List<LocationStructure>): ArrayList<LatLng> {
@@ -295,28 +288,43 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     override fun onDirectionSuccess(direction: Direction, rawBody: String) {
         if (direction.isOK) {
             counter--
-            requestIndex++
+            val directionPart = ArrayList<LatLng>()
+            val distancePart = ArrayList<String>()
+
             for (j in 0 until direction.routeList[0].legList.size) {
                 val leg = direction.routeList[0].legList[j]
-                distanceList.add(direction.routeList[0].legList[j].distance.text)
+                distancePart.add(direction.routeList[0].legList[j].distance.text)
+
                 for (i in 0 until leg.stepList.size) {
-                    polylinesList.addAll(leg.stepList[i].polyline.pointList)
+                    directionPart.addAll(leg.stepList[i].polyline.pointList)
                 }
             }
-
+            if (polylinesList.isEmpty()) {
+                polylinesList.add(directionPart)
+                distanceList.add(distancePart)
+            } else {
+                for (i in 0 until polylinesList.size) {
+                    if (polylinesList[i][polylinesList[i].size - 1] == directionPart[0]) {
+                        polylinesList.add(i + 1, directionPart)
+                        distanceList.add(i + 1, distancePart)
+                        break
+                    }
+                    if (polylinesList[i][0] == directionPart[directionPart.size - 1]) {
+                        polylinesList.add(i, directionPart)
+                        distanceList.add(i, distancePart)
+                        break
+                    }
+                    if (i == polylinesList.size - 1) {
+                        polylinesList.add(directionPart)
+                        distanceList.add(distancePart)
+                    }
+                }
+            }
             if (counter == 0) {
-                requestIndex = 0
                 createPolylines(polylinesList)
                 createMarkers(locationListFromDatabase!!)
                 polylinesList.clear()
                 distanceList.clear()
-            } else {
-                GoogleDirection.withServerKey("AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg")
-                        .from(requestList[requestIndex].origin)
-                        .and(requestList[requestIndex].waypoints)
-                        .to(requestList[requestIndex].dest)
-                        .transportMode(TransportMode.WALKING)
-                        .execute(this)
             }
         }
     }
@@ -325,17 +333,25 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         Log.e("Error", t.localizedMessage)
     }
 
-    private fun createPolylines(list: ArrayList<LatLng>){
+    private fun createPolylines(list: ArrayList<ArrayList<LatLng>>) {
+        val finalPolylineList = ArrayList<LatLng>()
+        for (i in list) {
+            finalPolylineList.addAll(i)
+        }
         mMap.addPolyline(PolylineOptions()
-                .addAll(list)
+                .addAll(finalPolylineList)
                 .width(11F)
                 .jointType(JointType.BEVEL)
                 .color(Color.rgb(145, 121, 241)))
     }
 
     private fun createMarkers(locationStructureList: List<LocationStructure>) {
+        val finalDistanceList = ArrayList<String>()
+        for (i in distanceList) {
+            finalDistanceList.addAll(i)
+        }
         for (i in 0 until locationStructureList.size - 1) {
-            locationStructureList[i + 1].distanceToPrevious = distanceList[i]
+            locationStructureList[i + 1].distanceToPrevious = finalDistanceList[i]
         }
         distanceList.clear()
         for (i in locationStructureList.indices) {
@@ -362,6 +378,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         changeMarkerListener()
         focusMapOnMarkers(markersList)
     }
+
     private fun getBitmapFromView(view: View): Bitmap {
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
         val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight,
@@ -373,49 +390,49 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     }
 
     private fun changeMarkerListener() {
-        mMap.setOnMarkerClickListener (
-            object: GoogleMap.OnMarkerClickListener {
+        mMap.setOnMarkerClickListener(
+                object : GoogleMap.OnMarkerClickListener {
 
-                override fun onMarkerClick(marker: Marker): Boolean {
-                    if(mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_HIDDEN){
-                        val locationStructure = marker.getData<LocationStructure>()
-                        if (!locationStructure.isSecret) {
-                            changeMarkerView(marker, MarkerType.BLACK)
-                            mBottomSheetBehavior!!.isHideable = true
-                            mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
-                            bottomSheetInfo!!.text = locationStructure.locationDescription
-                            bottomSheetName!!.text = locationStructure.locationName
-                            bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
-                                override fun onClick(v: View) {
-                                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
-                                    changeMarkerView(marker, MarkerType.NORMAL)
-                                }
-                            })
-                            mBottomSheetBehavior!!.setBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
-                                override fun onStateChanged(view: View, currentState: Int) {
-                                    if(currentState == BottomSheetBehavior.STATE_HIDDEN){
+                    override fun onMarkerClick(marker: Marker): Boolean {
+                        if (mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_HIDDEN) {
+                            val locationStructure = marker.getData<LocationStructure>()
+                            if (!locationStructure.isSecret) {
+                                changeMarkerView(marker, MarkerType.BLACK)
+                                mBottomSheetBehavior!!.isHideable = true
+                                mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+                                bottomSheetInfo!!.text = locationStructure.locationDescription
+                                bottomSheetName!!.text = locationStructure.locationName
+                                bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
+                                    override fun onClick(v: View) {
+                                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
                                         changeMarkerView(marker, MarkerType.NORMAL)
                                     }
-                                }
+                                })
+                                mBottomSheetBehavior!!.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                                    override fun onStateChanged(view: View, currentState: Int) {
+                                        if (currentState == BottomSheetBehavior.STATE_HIDDEN) {
+                                            changeMarkerView(marker, MarkerType.NORMAL)
+                                        }
+                                    }
 
-                                override fun onSlide(p0: View, p1: Float) {
-                                }
+                                    override fun onSlide(p0: View, p1: Float) {
+                                    }
 
-                            })
+                                })
 
-                            val handler = Handler()
-                            handler.postDelayed(object : Runnable {
-                                override fun run() {
-                                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED;
-                                }
-                            }, 300)
+                                val handler = Handler()
+                                handler.postDelayed(object : Runnable {
+                                    override fun run() {
+                                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
+                                    }
+                                }, 300)
+                            }
                         }
+                        return true
                     }
-                    return true
                 }
-            }
         )
-        }
+    }
 
     private fun bottomSheetInit() {
         bottomSheet = findViewById(R.id.bottom_sheet)
@@ -428,10 +445,10 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
     }
 
-    private fun changeMarkerView(marker: Marker, markerTypeToChange: MarkerType){
+    private fun changeMarkerView(marker: Marker, markerTypeToChange: MarkerType) {
         val distance = marker.getData<LocationStructure>().distanceToPrevious
         val locationId = marker.getData<LocationStructure>().locationID
-        when(markerTypeToChange){
+        when (markerTypeToChange) {
             MarkerType.NORMAL -> {
                 distanceNormalMarker!!.text = distance
                 numberOfNormalMarker!!.text = locationId!!.toString()
@@ -447,7 +464,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
             }
         }
     }
-
 
 
 }
