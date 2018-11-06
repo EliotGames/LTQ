@@ -7,7 +7,8 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import com.google.android.gms.maps.model.LatLng
-import ua.lviv.iot.R
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class UserLocationManager(locationSystemService: Any) {
@@ -37,7 +38,7 @@ class UserLocationManager(locationSystemService: Any) {
                     listener.onError()
                 }
                 else {
-                    listener.onSuccess(markerJumpCheck(p0))
+                    listener.onSuccess(getMyLocation(p0))
                 }
             }
 
@@ -55,7 +56,7 @@ class UserLocationManager(locationSystemService: Any) {
     }
 
     //check location jumping ???
-    private fun markerJumpCheck(currentLocation: Location) : LatLng {
+    /*private fun markerJumpCheck(currentLocation: Location) : LatLng {
         var currentLatLng = getMyLocation(currentLocation)
         when {
             previousLatLng == DEFAULT_VALUE_LATLNG -> {
@@ -76,7 +77,7 @@ class UserLocationManager(locationSystemService: Any) {
                 return previousLatLng
             }
         }
-    }
+    }*/
 
     //check
 
@@ -100,15 +101,9 @@ class UserLocationManager(locationSystemService: Any) {
         }
 
         fun getDistance(p1 : LatLng, p2 : LatLng) : Double {
-            val r = 6378137 // Earth’s mean radius in meter
-            var dLat = rad(p2.latitude - p1.latitude)
-            var dLong = rad(p2.longitude - p1.longitude)
-            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(rad(p1.latitude)) * Math.cos(rad(p2.longitude)) *
-                    Math.sin(dLong / 2) * Math.sin(dLong / 2)
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-            var d = r * c
-            return d // returns the distance in meter
+            val latitude = p1.latitude - p2.latitude
+            val longitude = p2.longitude - p2.longitude
+            return sqrt(latitude.pow(2) + longitude.pow(2))
         }
         //---------------------------------------------------------------------------------------------------
     }
