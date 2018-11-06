@@ -63,7 +63,7 @@ class UserLocationManager(locationSystemService: Any) {
                 previousLatLng = currentLatLng
                 return currentLatLng
             }
-            getDistance(currentLatLng, previousLatLng) <= 5 -> {
+            isCheckInAvailable(currentLatLng, previousLatLng) <= 5 -> {
                 previousLatLng = currentLatLng
                 return currentLatLng
             }
@@ -94,18 +94,6 @@ class UserLocationManager(locationSystemService: Any) {
             val longitude = location.longitude
             return LatLng(latitude, longitude)
         }
-
-        //method to find distance between locations---------------------------------------------------------
-        fun rad(x: Double) : Double {
-            return x * Math.PI / 180
-        }
-
-        fun getDistance(p1 : LatLng, p2 : LatLng) : Double {
-            val latitude = p1.latitude - p2.latitude
-            val longitude = p2.longitude - p2.longitude
-            return sqrt(latitude.pow(2) + longitude.pow(2))
-        }
-        //---------------------------------------------------------------------------------------------------
     }
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }

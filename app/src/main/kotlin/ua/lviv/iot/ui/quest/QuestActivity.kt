@@ -10,6 +10,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.BottomSheetBehavior
@@ -41,6 +42,7 @@ import com.androidmapsextensions.PolylineOptions
 import com.androidmapsextensions.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.firebase.database.DatabaseError
+import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.map.Quest
@@ -111,7 +113,11 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         })
         questViewModel.locationForCheckInAvailable.observe(this, Observer {
             if(it == EventResultStatus.EVENT_SUCCESS) {
-                Toast.makeText(this, "CheckIn for this location is available!", Toast.LENGTH_SHORT).show()
+                check_in_button.visibility = View.VISIBLE
+                Toast.makeText(this, "Check in is available", Toast.LENGTH_SHORT).show()
+            }
+            else if (it == EventResultStatus.NO_EVENT) {
+                check_in_button.visibility = View.INVISIBLE
             }
         })
         bottomSheetInit()
