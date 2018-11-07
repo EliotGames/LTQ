@@ -46,7 +46,7 @@ import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.utils.MarkerType
 
 
-class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback {
+class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private val MY_LOCATION_PERMISSIONS_REQUEST = 121
@@ -69,8 +69,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private var normalMarkerInflated: View? = null
     private var blackMarkerInflated: View? = null
     private var secretMarkerInflated: View? = null
-    private val polylinesList = ArrayList<ArrayList<LatLng>>()
-    private var counter: Int = 0
+
     private var bottomSheet: View? = null
     private var mBottomSheetBehavior: BottomSheetBehavior<*>? = null
     private var bottomSheetName: TextView? = null
@@ -78,13 +77,14 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
     private var bottomSheetSkipButton: Button? = null
     private val isQuestOn: Boolean = false
     private val currentQuestCategory: Int = 0
-    private val distanceList = ArrayList<ArrayList<String>>()
     private var locationListFromDatabase: List<LocationStructure>? = null
     private var currentQuestName: String? = null
     private val currentUserId: String? = null
     private val markersList = ArrayList<Marker>()
     private lateinit var questViewModel: QuestViewModel
     private var userCurrentLocation = defaultLatLng
+    private val model = QuestViewModel()
+    private var previousClickedMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,7 +128,18 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 
         secretMarkerInflated = inflater!!.inflate(R.layout.marker, null)
 
-        drawRoute(currentQuestName!!)
+        model.drawRoute(currentQuestName!!)
+
+        var markersList = emptyList<LocationStructure>()
+        val polylinesObserver = Observer<ArrayList<ArrayList<LatLng>>> { polylines -> createPolylines(polylines!!)}
+        model.polylinesLiveData.observe(this, polylinesObserver)
+        
+        val markersObserver = Observer<List<LocationStructure>> { markers -> markersList = markers!! }
+        model.locationLiveData.observe(this, markersObserver)
+
+        val distanceObserver = Observer<ArrayList<ArrayList<String>>> { distances -> if(markersList.isNotEmpty() and distances!!.isNotEmpty()) createMarkers(markersList, distances!!)  }
+        model.distanceLiveData.observe(this, distanceObserver)
+
 
         //set user marker and user location button
         if (fineLocationEnabled() || coarceLocationEnabled()) {
@@ -181,7 +192,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 .icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.quest_user_location_marker)))
                 .anchor(0.5f, 1.0f)
                 .position(userCurrentLocation)
-                .draggable(false))
+                .draggable(false)
+                .title("mPositionMarker"))
     }
 
     private fun getBitmap(drawableRes: Int): Bitmap {
@@ -197,28 +209,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 
     //-----------------------------------------------------------------------------------------------
 
-    private fun drawRoute(questName: String) {
 
-        firebaseDataManager.questRetrieverByName(questName, object : FirebaseDataManager.DataRetrieverListenerForSingleQuestStructure {
-            override fun onSuccess(questStructure: Quest, locationsIdList: List<Int>) {
-                var currentQuestCategory = questStructure.parentCategoryID
-                firebaseDataManager.locationsListRetriever(locationsIdList, object : FirebaseDataManager.DataRetrieveListenerForLocationsStructure {
-                    override fun onSuccess(locationStructureList: List<LocationStructure>) {
-                        locationListFromDatabase = locationStructureList
-                        prepareDataAndDrawingRoute(locationStructureList)
-                    }
-
-                    override fun onError(databaseError: DatabaseError) {
-                        Log.e("FirebaseDataManager", "eeeedgfde")
-                    }
-                })
-            }
-
-            override fun onError(databaseError: DatabaseError) {
-
-            }
-        })
-    }
 
     private fun focusMapOnMarkers(markersList: List<Marker>) {
         val builder = LatLngBounds.builder()
@@ -231,107 +222,9 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         mMap.animateCamera(cameraUpdate)
     }
 
-    private fun prepareDataAndDrawingRoute(locationStructureList: List<LocationStructure>) {
-        data = getLatLngList(locationStructureList)
-        polylinesList.clear()
 
-        counter = if (data.size == 8) {
-            1
-        } else {
-            data.size / 8 + 1
-        }
-        var latlngList: List<LatLng>
-        var origin: LatLng?
-        var dest: LatLng?
-        if (data.size > 7) {
-            var i = 0
-            while (i < data.size - 1) {
 
-                origin = LatLng(data[i].latitude, data[i].longitude)
-                if (i + 7 > data.size - 1) {
-                    dest = LatLng(data[data.size - 1].latitude, data[data.size - 1].longitude)
-                    latlngList = data.subList(i + 1, data.size - 1)
-                } else {
-                    dest = LatLng(data[i + 7].latitude, data[i + 7].longitude)
-                    latlngList = data.subList(i + 1, i + 7)
-                }
-                makeRequest(origin, latlngList, dest)
-                i += 7
-            }
-        } else {
-            origin = LatLng(data[0].latitude, data[0].longitude)
-            dest = LatLng(data[data.size - 1].latitude, data[data.size - 1].longitude)
-            latlngList = data.subList(1, data.size - 1)
 
-            makeRequest(origin, latlngList, dest)
-        }
-    }
-
-    private fun makeRequest(orig: LatLng, latlngList: List<LatLng>, destin: LatLng) {
-        GoogleDirection.withServerKey("AIzaSyALGNj3GZI8DpCLzYeoqQz2Kr0HuqUdiGg")
-                .from(orig)
-                .and(latlngList)
-                .to(destin)
-                .transportMode(TransportMode.WALKING)
-                .execute(this)
-    }
-
-    private fun getLatLngList(locationStructureList: List<LocationStructure>): ArrayList<LatLng> {
-        val latlngList = ArrayList<LatLng>()
-        for (locationStructure in locationStructureList) {
-            val point = LatLng(locationStructure.lat, locationStructure.lon)
-            latlngList.add(point)
-        }
-        return latlngList
-    }
-
-    override fun onDirectionSuccess(direction: Direction, rawBody: String) {
-        if (direction.isOK) {
-            counter--
-            val directionPart = ArrayList<LatLng>()
-            val distancePart = ArrayList<String>()
-
-            for (j in 0 until direction.routeList[0].legList.size) {
-                val leg = direction.routeList[0].legList[j]
-                distancePart.add(direction.routeList[0].legList[j].distance.text)
-
-                for (i in 0 until leg.stepList.size) {
-                    directionPart.addAll(leg.stepList[i].polyline.pointList)
-                }
-            }
-            if (polylinesList.isEmpty()) {
-                polylinesList.add(directionPart)
-                distanceList.add(distancePart)
-            } else {
-                for (i in 0 until polylinesList.size) {
-                    if (polylinesList[i][polylinesList[i].size - 1] == directionPart[0]) {
-                        polylinesList.add(i + 1, directionPart)
-                        distanceList.add(i + 1, distancePart)
-                        break
-                    }
-                    if (polylinesList[i][0] == directionPart[directionPart.size - 1]) {
-                        polylinesList.add(i, directionPart)
-                        distanceList.add(i, distancePart)
-                        break
-                    }
-                    if (i == polylinesList.size - 1) {
-                        polylinesList.add(directionPart)
-                        distanceList.add(distancePart)
-                    }
-                }
-            }
-            if (counter == 0) {
-                createPolylines(polylinesList)
-                createMarkers(locationListFromDatabase!!)
-                polylinesList.clear()
-                distanceList.clear()
-            }
-        }
-    }
-
-    override fun onDirectionFailure(t: Throwable) {
-        Log.e("Error", t.localizedMessage)
-    }
 
     private fun createPolylines(list: ArrayList<ArrayList<LatLng>>) {
         val finalPolylineList = ArrayList<LatLng>()
@@ -345,38 +238,40 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 .color(Color.rgb(145, 121, 241)))
     }
 
-    private fun createMarkers(locationStructureList: List<LocationStructure>) {
-        val finalDistanceList = ArrayList<String>()
-        for (i in distanceList) {
-            finalDistanceList.addAll(i)
-        }
-        for (i in 0 until locationStructureList.size - 1) {
-            locationStructureList[i + 1].distanceToPrevious = finalDistanceList[i]
-        }
-        distanceList.clear()
-        for (i in locationStructureList.indices) {
-            val j = i + 1
-            if (!locationStructureList[i].isSecret) {
-                numberOfNormalMarker!!.text = j.toString()
-                distanceNormalMarker!!.text = locationStructureList[i].distanceToPrevious
-                val marker = mMap.addMarker(MarkerOptions()
-                        .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon))
-                        .anchor(0.5f, 0.5f)
-                        .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!))))
-                locationStructureList[i].locationID = i + 1
-                marker.setData(locationStructureList[i])
-                markersList.add(marker)
-            } else {
-                val secretMarker1 = mMap.addMarker(MarkerOptions()
-                        .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(secretMarkerInflated!!)))
-                        .anchor(0.5f, 0.5f)
-                        .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon)))
-                secretMarker1.setData(locationStructureList[i])
-                markersList.add(secretMarker1)
+    private fun createMarkers(locationStructureList: List<LocationStructure>, distanceList: ArrayList<ArrayList<String>>) {
+        if (locationStructureList.isNotEmpty()) {
+            val finalDistanceList = ArrayList<String>()
+            for (i in distanceList) {
+                finalDistanceList.addAll(i)
             }
+            for (i in 0 until locationStructureList.size - 1) {
+                locationStructureList[i + 1].distanceToPrevious = finalDistanceList[i]
+            }
+            distanceList.clear()
+            for (i in locationStructureList.indices) {
+                val j = i + 1
+                if (!locationStructureList[i].isSecret) {
+                    numberOfNormalMarker!!.text = j.toString()
+                    distanceNormalMarker!!.text = locationStructureList[i].distanceToPrevious
+                    val marker = mMap.addMarker(MarkerOptions()
+                            .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon))
+                            .anchor(0.5f, 0.5f)
+                            .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!))))
+                    locationStructureList[i].locationID = i + 1
+                    marker.setData(locationStructureList[i])
+                    markersList.add(marker)
+                } else {
+                    val secretMarker1 = mMap.addMarker(MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(secretMarkerInflated!!)))
+                            .anchor(0.5f, 0.5f)
+                            .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon)))
+                    secretMarker1.setData(locationStructureList[i])
+                    markersList.add(secretMarker1)
+                }
+            }
+            changeMarkerListener()
+            focusMapOnMarkers(markersList)
         }
-        changeMarkerListener()
-        focusMapOnMarkers(markersList)
     }
 
     private fun getBitmapFromView(view: View): Bitmap {
@@ -394,14 +289,18 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 object : GoogleMap.OnMarkerClickListener {
 
                     override fun onMarkerClick(marker: Marker): Boolean {
-                        if (mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_HIDDEN) {
+                        if ( marker.title != "mPositionMarker") {
                             val locationStructure = marker.getData<LocationStructure>()
                             if (!locationStructure.isSecret) {
+                                if (previousClickedMarker != null && previousClickedMarker != marker) {
+                                    changeMarkerView(previousClickedMarker!!, MarkerType.NORMAL)
+                                }
+                                previousClickedMarker = marker
                                 changeMarkerView(marker, MarkerType.BLACK)
                                 mBottomSheetBehavior!!.isHideable = true
-                                mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
                                 bottomSheetInfo!!.text = locationStructure.locationDescription
                                 bottomSheetName!!.text = locationStructure.locationName
+                                mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
                                 bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
                                     override fun onClick(v: View) {
                                         mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
@@ -419,13 +318,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                                     }
 
                                 })
-
-                                val handler = Handler()
-                                handler.postDelayed(object : Runnable {
-                                    override fun run() {
-                                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
-                                    }
-                                }, 300)
                             }
                         }
                         return true
