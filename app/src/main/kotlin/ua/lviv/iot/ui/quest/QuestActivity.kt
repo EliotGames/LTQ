@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.*
 import com.google.firebase.database.DatabaseError
 import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
+import ua.lviv.iot.utils.InjectorUtils
 import ua.lviv.iot.utils.MarkerType
 
 
@@ -93,7 +94,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
-        questViewModel = ViewModelProviders.of(this).get(QuestViewModel::class.java)
+        val factory = InjectorUtils.provideQuestViewModelFactory()
+        questViewModel = ViewModelProviders.of(this, factory).get(QuestViewModel::class.java)
         initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
         questViewModel.userCurrentLocation.observe(this, Observer {
             userCurrentLocation = it!!
