@@ -25,7 +25,7 @@
             android:name="com.androidmapsextensions.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="com.example.android.ltq.MainActivity"/>
+            tools:context="ua.lviv.iot.ui.quest.QuestActivity"/>
 
 
         <!--<android.support.design.widget.FloatingActionButton-->
