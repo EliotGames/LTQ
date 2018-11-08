@@ -21,9 +21,10 @@ import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.model.map.UserLocationManager
 
 
-class QuestViewModel: ViewModel(), DirectionCallback {
+class QuestViewModel : ViewModel(), DirectionCallback {
 
     private val polylinesList = ArrayList<ArrayList<LatLng>>()
+    private val prePolylinesList = ArrayList<ArrayList<LatLng>>()
     val polylinesLiveData = MutableLiveData<ArrayList<ArrayList<LatLng>>>()
     private var counter: Int = 0
     private val DEFAULT_LATITUDE = 49.841787
@@ -36,6 +37,7 @@ class QuestViewModel: ViewModel(), DirectionCallback {
     private var dest: LatLng? = null
     private var requestIndex = 0
     private val distanceList = ArrayList<ArrayList<String>>()
+    private val predistanceList = ArrayList<ArrayList<String>>()
     val distanceLiveData = MutableLiveData<ArrayList<ArrayList<String>>>()
     private var locationListFromDatabase = mutableListOf<LocationStructure>()
     val locationLiveData = MutableLiveData<List<LocationStructure>>()
@@ -72,6 +74,7 @@ class QuestViewModel: ViewModel(), DirectionCallback {
                 var currentQuestCategory = questStructure.parentCategoryID
                 firebaseDataManager.locationsListRetriever(locationsIdList, object : FirebaseDataManager.DataRetrieveListenerForLocationsStructure {
                     override fun onSuccess(locationStructureList: List<LocationStructure>) {
+                        predistanceList.clear()
                         distanceList.clear() //Cleaning, in case there are data from previous quest
                         locationListFromDatabase.addAll(locationStructureList)
                         locationLiveData.postValue(locationListFromDatabase)
@@ -93,6 +96,7 @@ class QuestViewModel: ViewModel(), DirectionCallback {
     private fun prepareDataAndDrawingRoute(locationStructureList: List<LocationStructure>) {
         data = getLatLngList(locationStructureList)
         polylinesList.clear()
+        prePolylinesList.clear()
 
         counter = if (data.size == 8) {
             1
@@ -158,28 +162,31 @@ class QuestViewModel: ViewModel(), DirectionCallback {
                     directionPart.addAll(leg.stepList[i].polyline.pointList)
                 }
             }
-            if (polylinesList.isEmpty()) {
-                polylinesList.add(directionPart)
-                distanceList.add(distancePart)
-            } else {
-                for (i in 0 until polylinesList.size) {
-                    if (polylinesList[i][polylinesList[i].size - 1] == directionPart[0]) {
-                        polylinesList.add(i + 1, directionPart)
-                        distanceList.add(i + 1, distancePart)
-                        break
-                    }
-                    if (polylinesList[i][0] == directionPart[directionPart.size - 1]) {
-                        polylinesList.add(i, directionPart)
-                        distanceList.add(i, distancePart)
-                        break
-                    }
-                    if (i == polylinesList.size - 1) {
-                        polylinesList.add(directionPart)
-                        distanceList.add(distancePart)
+
+            prePolylinesList.add(directionPart)
+            predistanceList.add(distancePart)
+
+            if (counter == 0) {
+                polylinesList.add(prePolylinesList[0])
+                distanceList.add(predistanceList[0])
+                prePolylinesList.removeAt(0)
+                predistanceList.removeAt(0)
+                while (polylinesList.size != prePolylinesList.size + 1) {
+                    for (i in 0 until prePolylinesList.size) {
+                        for (j in 0 until polylinesList.size) {
+                            if (prePolylinesList[i][prePolylinesList[i].size - 1] == polylinesList[j][0] &&
+                                    !polylinesList.contains(prePolylinesList[i])) {
+                                polylinesList.add(j, prePolylinesList[i])
+                                distanceList.add(j, predistanceList[i])
+                            }
+                            if (prePolylinesList[i][0] == polylinesList[j][polylinesList[j].size - 1] &&
+                                    !polylinesList.contains(prePolylinesList[i])) {
+                                polylinesList.add(j + 1, prePolylinesList[i])
+                                distanceList.add(j + 1, predistanceList[i])
+                            }
+                        }
                     }
                 }
-            }
-            if (counter == 0) {
                 polylinesLiveData.postValue(polylinesList)
                 distanceLiveData.postValue(distanceList)
             }
