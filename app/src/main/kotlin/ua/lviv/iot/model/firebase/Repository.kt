@@ -5,6 +5,7 @@ import ua.lviv.iot.model.map.Quest
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import com.google.firebase.database.DatabaseError
+import ua.lviv.iot.model.EventResultStatus
 
 
 class Repository private  constructor(private val firebaseDataManager: FirebaseDataManager){
@@ -41,6 +42,23 @@ class Repository private  constructor(private val firebaseDataManager: FirebaseD
 
         })
         return quests
+    }
+
+    fun getLastLocationByQuest(uId: String, questName: String, listener: FirebaseDataManager.LastLocationByQuestListener) {
+        firebaseDataManager.getLastLocationByQuest(uId, questName, object: FirebaseDataManager.LastLocationByQuestListener {
+            override fun onSuccess(location: Int) {
+                listener.onSuccess(location)
+            }
+            override fun onError(resultStatus: EventResultStatus) {
+                listener.onError(resultStatus)
+            }
+        })
+        TODO()
+    }
+
+    fun setLastLocationByQuest(uId: String, questName: String, location: Int) {
+        firebaseDataManager.setLastLocationByQuest(uId, questName, location)
+        TODO()
     }
 
 }

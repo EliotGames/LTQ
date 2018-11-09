@@ -5,6 +5,7 @@ class User {
     var email: String? = null
     var sex: UserSex? = null
     var points: Int? = null
+    lateinit var quests: HashMap<String, Int>
 
     // default
     constructor()
@@ -15,6 +16,7 @@ class User {
         this.points = 0
         this.email = account
         this.sex = UserSex.CHOOSE_SEX
+        this.quests = HashMap<String, Int>()
     }
 
     // for edit profile ???

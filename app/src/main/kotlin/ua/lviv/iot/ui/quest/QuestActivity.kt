@@ -100,6 +100,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
+
+        //viewmodel init and observe data------------------------------------------------------------
         questViewModel = ViewModelProviders.of(this).get(QuestViewModel::class.java)
         initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
         questViewModel.userCurrentLocation.observe(this, Observer {
@@ -111,16 +113,33 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 }
             }
         })
+
         questViewModel.locationForCheckInAvailable.observe(this, Observer {
             if(it == EventResultStatus.EVENT_SUCCESS) {
                 check_in_button.visibility = View.VISIBLE
-                Toast.makeText(this, "Check in is available", Toast.LENGTH_SHORT).show()
             }
             else if (it == EventResultStatus.NO_EVENT) {
                 check_in_button.visibility = View.INVISIBLE
             }
         })
+
+        questViewModel.locationHasChecked.observe(this, Observer {
+            when(it) {
+                EventResultStatus.EVENT_SUCCESS -> {
+                    Toast.makeText(this, R.string.check_in_success, Toast.LENGTH_SHORT).show()
+                    questViewModel.locationHasChecked.value = EventResultStatus.NO_EVENT
+                }
+                EventResultStatus.EVENT_FAILED -> {Toast.makeText(this, R.string.check_in_failed, Toast.LENGTH_SHORT).show()}
+                EventResultStatus.NO_EVENT -> {}
+            }
+        })
+        //-------------------------------------------------------------------------------------------------
         bottomSheetInit()
+
+        check_in_button.setOnClickListener {
+            questViewModel.activateCheckIn(currentQuestName!!)
+        }
+
         fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@QuestActivity, Observer {
             observe(it)})
     }
