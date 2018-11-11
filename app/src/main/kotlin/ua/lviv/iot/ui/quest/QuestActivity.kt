@@ -48,8 +48,6 @@ import ua.lviv.iot.utils.MarkerType
 
 
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
-
-
     private val MY_LOCATION_PERMISSIONS_REQUEST = 121
     private val DEFAULT_LATITUDE = 49.841787
     private val DEFAULT_LONGITUDE = 24.031686

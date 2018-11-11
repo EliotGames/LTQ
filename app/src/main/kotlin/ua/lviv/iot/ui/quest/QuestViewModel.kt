@@ -22,7 +22,6 @@ import ua.lviv.iot.model.map.UserLocationManager
 
 
 class QuestViewModel : ViewModel(), DirectionCallback {
-
     private val polylinesList = ArrayList<ArrayList<LatLng>>()
     private val prePolylinesList = ArrayList<ArrayList<LatLng>>()
     val polylinesLiveData = MutableLiveData<ArrayList<ArrayList<LatLng>>>()

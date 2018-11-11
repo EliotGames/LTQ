@@ -2,7 +2,6 @@ package ua.lviv.iot.ui.quest
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import ua.lviv.iot.ui.questsMenu.QuestMenuViewModel
 
 class QuestViewModelFactory: ViewModelProvider.NewInstanceFactory() {
 

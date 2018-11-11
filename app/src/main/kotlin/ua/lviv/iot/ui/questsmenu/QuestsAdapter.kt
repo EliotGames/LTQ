@@ -1,4 +1,4 @@
-package ua.lviv.iot.ui.questsMenu
+package ua.lviv.iot.ui.questsmenu
 
 import android.content.Context
 import android.content.Intent
