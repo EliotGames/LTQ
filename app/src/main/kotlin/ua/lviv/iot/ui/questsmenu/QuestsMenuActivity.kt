@@ -5,7 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_quests.*
+import kotlinx.android.synthetic.main.activity_questsmenu.*
 import ua.lviv.iot.R
 import ua.lviv.iot.utils.InjectorUtils
 
@@ -14,7 +14,7 @@ class QuestsMenuActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_quests)
+        setContentView(R.layout.activity_questsmenu)
         rv_quests_recent.layoutManager = LinearLayoutManager(this)
         rv_quests_all.layoutManager = LinearLayoutManager(this)
         initUI()

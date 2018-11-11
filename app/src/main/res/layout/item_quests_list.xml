@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:contentDescription="Quest image"
         android:scaleType="fitStart"
-        android:src="@drawable/quests_test_image" />
+        android:src="@drawable/questsmenu_test_image" />
 
     <TextView
         android:id="@+id/tv_quests_item_title"

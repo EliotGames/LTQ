@@ -1,5 +1,6 @@
 package ua.lviv.iot.ui.quest
 
+//import sun.management.VMOptionCompositeData.getOrigin
 import android.Manifest
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
@@ -11,7 +12,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
@@ -20,29 +20,20 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import com.akexorcist.googledirection.GoogleDirection
+import android.widget.Toast
+import com.androidmapsextensions.*
+import com.androidmapsextensions.Marker
+import com.androidmapsextensions.MarkerOptions
+import com.androidmapsextensions.PolylineOptions
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.*
+import ua.lviv.iot.R
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
-//import sun.management.VMOptionCompositeData.getOrigin
-import android.util.Log
-import android.widget.Toast
-import com.akexorcist.googledirection.model.Direction
-import com.akexorcist.googledirection.DirectionCallback
-import com.akexorcist.googledirection.constant.TransportMode
-import com.androidmapsextensions.GoogleMap
-import com.androidmapsextensions.Marker
-import com.androidmapsextensions.MarkerOptions
-import com.androidmapsextensions.OnMapReadyCallback
-import com.androidmapsextensions.PolylineOptions
-import com.androidmapsextensions.SupportMapFragment
-import com.google.android.gms.maps.model.*
-import com.google.firebase.database.DatabaseError
-import ua.lviv.iot.R
-import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.utils.InjectorUtils
 import ua.lviv.iot.utils.MarkerType
 
@@ -118,15 +109,15 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         inflater = applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-        normalMarkerInflated = inflater!!.inflate(R.layout.marker, null)
+        normalMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
         numberOfNormalMarker = normalMarkerInflated!!.findViewById(R.id.marker_number) as TextView
         distanceNormalMarker = normalMarkerInflated!!.findViewById(R.id.marker_distance) as TextView
 
-        blackMarkerInflated = inflater!!.inflate(R.layout.black_marker, null)
+        blackMarkerInflated = inflater!!.inflate(R.layout.view_marker_black, null)
         numberOfBlackMarker = blackMarkerInflated!!.findViewById(R.id.changed_marker_number) as TextView
         distanceBlackMarker = blackMarkerInflated!!.findViewById(R.id.changed_marker_distance) as TextView
 
-        secretMarkerInflated = inflater!!.inflate(R.layout.marker, null)
+        secretMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
 
         model.drawRoute(currentQuestName!!)
 
@@ -206,9 +197,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         return bitmap
     }
 
-
     //-----------------------------------------------------------------------------------------------
-
 
 
     private fun focusMapOnMarkers(markersList: List<Marker>) {
@@ -221,9 +210,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
         mMap.animateCamera(cameraUpdate)
     }
-
-
-
 
 
     private fun createPolylines(list: ArrayList<ArrayList<LatLng>>) {
@@ -285,45 +271,43 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun changeMarkerListener() {
-        mMap.setOnMarkerClickListener(
-                object : GoogleMap.OnMarkerClickListener {
+        mMap.setOnMarkerClickListener { marker ->
+            if ( marker.title != "mPositionMarker") {
+                val locationStructure = marker.getData<LocationStructure>()
+                if (!locationStructure.isSecret) {
+                    if (previousClickedMarker != null && previousClickedMarker != marker) {
+                        changeMarkerView(previousClickedMarker!!, MarkerType.NORMAL)
+                    }
+                    previousClickedMarker = marker
+                    changeMarkerView(marker, MarkerType.BLACK)
+                    mBottomSheetBehavior!!.isHideable = true
+                    bottomSheetInfo!!.text = locationStructure.locationDescription
+                    bottomSheetName!!.text = locationStructure.locationName
+                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
 
-                    override fun onMarkerClick(marker: Marker): Boolean {
-                        if ( marker.title != "mPositionMarker") {
-                            val locationStructure = marker.getData<LocationStructure>()
-                            if (!locationStructure.isSecret) {
-                                if (previousClickedMarker != null && previousClickedMarker != marker) {
-                                    changeMarkerView(previousClickedMarker!!, MarkerType.NORMAL)
-                                }
-                                previousClickedMarker = marker
-                                changeMarkerView(marker, MarkerType.BLACK)
-                                mBottomSheetBehavior!!.isHideable = true
-                                bottomSheetInfo!!.text = locationStructure.locationDescription
-                                bottomSheetName!!.text = locationStructure.locationName
-                                mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
-                                bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
-                                    override fun onClick(v: View) {
-                                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
-                                        changeMarkerView(marker, MarkerType.NORMAL)
-                                    }
-                                })
-                                mBottomSheetBehavior!!.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                                    override fun onStateChanged(view: View, currentState: Int) {
-                                        if (currentState == BottomSheetBehavior.STATE_HIDDEN) {
-                                            changeMarkerView(marker, MarkerType.NORMAL)
-                                        }
-                                    }
+                    setImagesListVisibility(true)
+                    bottomSheetSkipButton!!.setOnClickListener {
+                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+                        changeMarkerView(marker, MarkerType.NORMAL)
 
-                                    override fun onSlide(p0: View, p1: Float) {
-                                    }
+                        setImagesListVisibility(false)
+                    }
 
-                                })
+                    mBottomSheetBehavior!!.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                        override fun onStateChanged(view: View, currentState: Int) {
+                            if (currentState == BottomSheetBehavior.STATE_HIDDEN) {
+                                changeMarkerView(marker, MarkerType.NORMAL)
                             }
                         }
-                        return true
-                    }
+
+                        override fun onSlide(p0: View, p1: Float) {
+                        }
+
+                    })
                 }
-        )
+            }
+            true
+        }
     }
 
     private fun bottomSheetInit() {
@@ -358,4 +342,18 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
+    /**
+     * If true smoothly moves images list out, otherwise smoothly hides it
+     */
+    private fun setImagesListVisibility(shouldBeShown: Boolean) {
+        val imageListView = findViewById<View>(R.id.horizontalscrollview_user)
+
+        if (shouldBeShown) {
+            imageListView.animate()
+                    .translationY(imageListView.height.toFloat())
+                    .duration = 300
+        } else {
+            imageListView.animate().translationY(0f)
+        }
+    }
 }

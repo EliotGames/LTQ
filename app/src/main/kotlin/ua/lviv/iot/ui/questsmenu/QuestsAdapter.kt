@@ -7,7 +7,7 @@ import android.view.View
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
-import kotlinx.android.synthetic.main.quests_list_item.view.*
+import kotlinx.android.synthetic.main.item_quests_list.view.*
 import ua.lviv.iot.ui.quest.QuestActivity
 import ua.lviv.iot.R
 import ua.lviv.iot.model.map.Quest
@@ -22,7 +22,7 @@ class QuestsAdapter(val items: ArrayList<Quest>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
         context = parent.context
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.quests_list_item, parent, false))
+        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_quests_list, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
