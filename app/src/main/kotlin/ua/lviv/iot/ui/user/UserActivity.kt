@@ -52,10 +52,10 @@ class UserActivity : AppCompatActivity() {
                     }
                 })
             } else {
-//                startActivity(Intent(this, LoginActivity::class.java))
-                setContentView(R.layout.activity_user)
-                initToolbar()
-                init()
+                startActivity(Intent(this, LoginActivity::class.java))
+//                setContentView(R.layout.activity_user)
+//                initToolbar()
+//                init()
             }
         })
 
