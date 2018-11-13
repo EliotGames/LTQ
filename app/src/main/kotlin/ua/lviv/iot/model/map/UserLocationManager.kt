@@ -6,6 +6,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -32,7 +33,7 @@ class UserLocationManager(locationSystemService: Any) {
 
     @SuppressLint("MissingPermission")
     fun checkLocationUpdates(listener: UserLocationManager.UserLocationListener) {
-        locationManager?.requestLocationUpdates(chooseLocationManagerType(), 0, 0.toFloat(), object : LocationListener {
+        locationManager?.requestLocationUpdates(chooseLocationManagerType(), 10000, 0.toFloat(), object : LocationListener {
             override fun onLocationChanged(p0: Location?) {
                 if(p0 == null) {
                     listener.onError()
@@ -43,12 +44,15 @@ class UserLocationManager(locationSystemService: Any) {
             }
 
             override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
+                Log.e("location request", "onStatusChenged")
             }
 
             override fun onProviderEnabled(p0: String?) {
+                Log.e("location request", "onProviderEnabled")
             }
 
             override fun onProviderDisabled(p0: String?) {
+                Log.e("location request", "onProviderDisabled")
             }
 
         })

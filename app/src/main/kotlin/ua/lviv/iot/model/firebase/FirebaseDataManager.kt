@@ -198,7 +198,7 @@ class FirebaseDataManager private constructor(){
     }
 
     fun setLastLocationByQuest(uId: String, questName: String, location: Int) {
-        firebaseDatabase.getReference("userData").child(uId).child("quests").child(questName).setValue(location)
+        firebaseDatabase.reference.child("userData").child(uId).child("quests").child(questName).setValue(location)
     }
 
     fun writeUserPoints(uId: String, points: Int) {

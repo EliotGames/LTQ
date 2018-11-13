@@ -103,14 +103,24 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
 
         //viewmodel init and observe data------------------------------------------------------------
         questViewModel = ViewModelProviders.of(this).get(QuestViewModel::class.java)
+
         initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
+
         questViewModel.userCurrentLocation.observe(this, Observer {
             userCurrentLocation = it!!
             if(mPositionMarker != null) {
                 mPositionMarker!!.position = userCurrentLocation
                 if(locationListFromDatabase != null) {
-                    questViewModel.locationCheckInListener(getLatLngList(locationListFromDatabase!!))
+                    questViewModel.getUserStatusForQuest(currentQuestName!!, getLatLngList(locationListFromDatabase!!))
+                    questViewModel.locationCheckInListener()
                 }
+            }
+        })
+
+        questViewModel.newQuestStarted.observe(this, Observer {
+            when(it) {
+                EventResultStatus.EVENT_SUCCESS -> Toast.makeText(this, R.string.new_quest_start_success, Toast.LENGTH_SHORT).show()
+                EventResultStatus.EVENT_FAILED -> Toast.makeText(this, R.string.new_quest_start_fail, Toast.LENGTH_SHORT).show()
             }
         })
 
@@ -218,7 +228,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
                 .icon(BitmapDescriptorFactory.fromBitmap(getBitmap(R.drawable.quest_user_location_marker)))
                 .anchor(0.5f, 1.0f)
                 .position(userCurrentLocation)
-                .draggable(false))
+                .draggable(false)
+                .title("mPositionMarker"))
     }
 
     private fun getBitmap(drawableRes: Int) : Bitmap {
@@ -411,38 +422,40 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback, DirectionCallback
             object: GoogleMap.OnMarkerClickListener {
 
                 override fun onMarkerClick(marker: Marker): Boolean {
-                    if(mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_HIDDEN){
-                        val locationStructure = marker.getData<LocationStructure>()
-                        if (!locationStructure.isSecret) {
-                            changeMarkerView(marker, MarkerType.BLACK)
-                            mBottomSheetBehavior!!.isHideable = true
-                            mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
-                            bottomSheetInfo!!.text = locationStructure.locationDescription
-                            bottomSheetName!!.text = locationStructure.locationName
-                            bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
-                                override fun onClick(v: View) {
-                                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
-                                    changeMarkerView(marker, MarkerType.NORMAL)
-                                }
-                            })
-                            mBottomSheetBehavior!!.setBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
-                                override fun onStateChanged(view: View, currentState: Int) {
-                                    if(currentState == BottomSheetBehavior.STATE_HIDDEN){
+                    if(marker.title != "mPositionMarker") {
+                        if(mBottomSheetBehavior!!.state == BottomSheetBehavior.STATE_HIDDEN){
+                            val locationStructure = marker.getData<LocationStructure>()
+                            if (!locationStructure.isSecret) {
+                                changeMarkerView(marker, MarkerType.BLACK)
+                                mBottomSheetBehavior!!.isHideable = true
+                                mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+                                bottomSheetInfo!!.text = locationStructure.locationDescription
+                                bottomSheetName!!.text = locationStructure.locationName
+                                bottomSheetSkipButton!!.setOnClickListener(object : View.OnClickListener {
+                                    override fun onClick(v: View) {
+                                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
                                         changeMarkerView(marker, MarkerType.NORMAL)
                                     }
-                                }
+                                })
+                                mBottomSheetBehavior!!.setBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+                                    override fun onStateChanged(view: View, currentState: Int) {
+                                        if(currentState == BottomSheetBehavior.STATE_HIDDEN){
+                                            changeMarkerView(marker, MarkerType.NORMAL)
+                                        }
+                                    }
 
-                                override fun onSlide(p0: View, p1: Float) {
-                                }
+                                    override fun onSlide(p0: View, p1: Float) {
+                                    }
 
-                            })
+                                })
 
-                            val handler = Handler()
-                            handler.postDelayed(object : Runnable {
-                                override fun run() {
-                                    mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED;
-                                }
-                            }, 300)
+                                val handler = Handler()
+                                handler.postDelayed(object : Runnable {
+                                    override fun run() {
+                                        mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED;
+                                    }
+                                }, 300)
+                            }
                         }
                     }
                     return true

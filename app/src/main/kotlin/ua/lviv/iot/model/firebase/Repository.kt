@@ -53,12 +53,10 @@ class Repository private  constructor(private val firebaseDataManager: FirebaseD
                 listener.onError(resultStatus)
             }
         })
-        TODO()
     }
 
     fun setLastLocationByQuest(uId: String, questName: String, location: Int) {
         firebaseDataManager.setLastLocationByQuest(uId, questName, location)
-        TODO()
     }
 
 }

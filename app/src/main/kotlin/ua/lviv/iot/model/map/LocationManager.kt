@@ -10,11 +10,11 @@ import kotlin.math.pow
 class LocationManager(private val locationsList: ArrayList<LatLng>) {
 
     private val CHECKIN_ZONE = 0.00015
-    private var currentLocationIndex = 0
+    var currentLocationIndex = 0
 
     //listen if user is in location check_zone
     fun locationCheckInListener(userLocation: LatLng, listener: LocationCheckInListener) {
-        for(i in currentLocationIndex..locationsList.size) {
+        for(i in currentLocationIndex..(locationsList.size-1)) {
             if(isCheckInAvailable(locationsList[currentLocationIndex], userLocation, CHECKIN_ZONE)) {
                 listener.onChange(EventResultStatus.EVENT_SUCCESS)
             }
@@ -23,23 +23,31 @@ class LocationManager(private val locationsList: ArrayList<LatLng>) {
     }
 
     //call when user click CheckIn button to update user data
-    fun checkInLocation(questName: String, listener: OnLocationChecked) {
-        TODO()//repository.setLastLocationByQuest(FirebaseLoginManager.auth.currentUser!!.uid, questName, currentLocationIndex)
-        //repository.getLastLocationByQuest(FirebaseLoginManager.auth.currentUser!!.uid, questName, object: listener: FirebaseDataManager.LastLocationByQuestListener{
-        // override onSuccess(location) {
-        //    if location == currentLocationIndex {
-        //        listener.onSuccess()
-        //        currentLocationIndex++
-        // }
-        //    else {
-        //        listener.onError(EventResultStatus)
-        // }
-        // }
-        //
-        // override onError(resultStatus) {
-        //    listener.onError(resultStatus)
-        // }
-        // })
+    fun checkInLocation(questName: String, repository: Repository, listener: OnLocationChecked) {
+        repository.setLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questName, currentLocationIndex+1)
+        repository.getLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questName, object: FirebaseDataManager.LastLocationByQuestListener{
+            override fun onSuccess(location: Int) {
+                if (location == currentLocationIndex+1) {
+                    if (checkEndOfQuest(location)) {
+                        TODO()//quest has ended YAHHHHOOOOOOOOO
+                    }
+                    else {
+                        currentLocationIndex++
+                        listener.onSuccess()
+                    }
+                }
+                else {
+                    listener.onError(EventResultStatus.EVENT_SUCCESS)
+                }
+            }
+            override fun onError(resultStatus: EventResultStatus) {
+                listener.onError(resultStatus)
+            }
+         })
+    }
+
+    fun checkEndOfQuest(location: Int) : Boolean {
+        return location == locationsList.size - 1
     }
 
     //method to find distance between locations---------------------------------------------------------
