@@ -1,55 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:appRetrofit="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     appRetrofit:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="ua.lviv.iot.ui.quest.QuestActivity">
 
 
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:theme="@style/AppTheme.NoActionBar"
         android:clipChildren="false"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:theme="@style/AppTheme.NoActionBar">
 
         <fragment
             android:id="@+id/map"
             android:name="com.androidmapsextensions.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="com.example.android.ltq.MainActivity"/>
+            tools:context="ua.lviv.iot.ui.quest.QuestActivity" />
 
 
         <!--<android.support.design.widget.FloatingActionButton-->
-            <!--android:id="@+id/myLocationButton"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--android:layout_marginTop="20dp"-->
-            <!--android:layout_marginEnd="20dp"-->
-            <!--android:layout_below="@id/appBarLayout"-->
-            <!--app:backgroundTint="@color/colorText"-->
-            <!--android:src="@drawable/my_location_icon"-->
-            <!--app:fabSize="mini"-->
-            <!--/>-->
+        <!--android:id="@+id/myLocationButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:layout_marginEnd="20dp"-->
+        <!--android:layout_below="@id/appBarLayout"-->
+        <!--app:backgroundTint="@color/colorText"-->
+        <!--android:src="@drawable/my_location_icon"-->
+        <!--app:fabSize="mini"-->
+        <!--/>-->
 
     </RelativeLayout>
+
+    <!-- Images list -->
+    <HorizontalScrollView
+        android:id="@+id/horizontalscrollview_user"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-80dp"
+        android:fitsSystemWindows="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:padding="5dp"
+                android:src="@drawable/quest_image_example1" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:padding="5dp"
+                android:scaleType="fitStart"
+                android:src="@drawable/quest_image_example2" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:padding="5dp"
+                android:scaleType="fitStart"
+                android:src="@drawable/quest_image_example3" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:padding="5dp"
+                android:src="@drawable/quest_image_example1" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:padding="5dp"
+                android:src="@drawable/quest_image_example2" />
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorBottomSheet"
         android:clipToPadding="true"
-        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
-        android:background="@color/colorBottomSheet">
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -85,23 +138,23 @@
                     android:id="@+id/bottom_sheet_skip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
                     android:layout_marginTop="21dp"
-                    android:text="skip"
+                    android:layout_marginEnd="15dp"
                     android:background="@color/colorBottomSheet"
-                    android:textColor="@color/colorText"
                     android:shadowColor="@color/colorText"
                     android:shadowDx="2"
                     android:shadowDy="2"
-                    />
+                    android:text="skip"
+                    android:textColor="@color/colorText" />
             </LinearLayout>
+
             <TextView
                 android:id="@+id/bottom_sheet_info"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textColor="@color/colorText"
                 android:padding="16dp"
-                android:textSize="16sp"/>
+                android:textColor="@color/colorText"
+                android:textSize="16sp" />
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

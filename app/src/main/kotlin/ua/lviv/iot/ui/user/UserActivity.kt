@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import ua.lviv.iot.R
@@ -36,11 +35,8 @@ class UserActivity : AppCompatActivity() {
                 //get current user data
                 profileViewModel.getCurrentUser()
                 profileViewModel.currentUserData.observe(this@UserActivity, Observer {
-                    val userSexTV = findViewById<TextView>(R.id.user_sex)
-                    val userNameTV = findViewById<TextView>(R.id.user_name)
 
-                    userSexTV.text = it?.sex.toString()
-                    userNameTV.text = it!!.name
+                    supportActionBar!!.title = it!!.name
                 })
 
                 profileViewModel.isUserLogout.observe(this, Observer {
@@ -57,6 +53,9 @@ class UserActivity : AppCompatActivity() {
                 })
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
+//                setContentView(R.layout.activity_user)
+//                initToolbar()
+//                init()
             }
         })
 
@@ -97,7 +96,6 @@ class UserActivity : AppCompatActivity() {
 
     private fun initToolbar() {
         val toolbar = findViewById<Toolbar>(R.id.user_toolbar)
-        toolbar.title = "User page"
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }

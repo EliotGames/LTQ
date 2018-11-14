@@ -49,19 +49,25 @@ class LoginActivity : AppCompatActivity() {
         //init and setOnClickListener for skip_login button
         val skipLogin = findViewById<Button>(R.id.skip_login)
         skipLogin.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))}
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
 
         //viewmodel init
         loginViewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
 
         //observe if user login is successful
         loginViewModel.isLoginSuccessfull.observe(this, Observer {
-            when(it) {
+            when (it) {
                 EventResultStatus.EVENT_SUCCESS -> {
-                    startActivity(Intent(this, MainActivity::class.java))}
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
                 EventResultStatus.EVENT_FAILED -> {
-                    Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()}
-                else -> {}
+                    Toast.makeText(this, "Registration failed!", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                }
             }
         })
 
@@ -116,6 +122,7 @@ class LoginActivity : AppCompatActivity() {
                         val signInIntent = googleSignInClient.signInIntent
 
                         startActivityForResult(signInIntent, REQUEST_CODE_GOOGLE_LOGIN)
+                        finish()
                     }
                 })
             } else {
