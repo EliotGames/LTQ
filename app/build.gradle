@@ -53,7 +53,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:$google_play_version"
     implementation "com.google.android.gms:play-services-maps:$google_play_version"
     implementation "com.google.android.gms:play-services-location:$google_play_version"
-    implementation "com.google.android.gms:play-services-auth:16.0.1"
+    implementation "com.google.android.gms:play-services-auth:$google_play_auth_version"
 
     //Facebook authentication
     implementation "com.facebook.android:facebook-android-sdk:$facebook_sdk_version"
@@ -68,15 +68,15 @@ dependencies {
     implementation "com.google.firebase:firebase-storage:$firebase_version"
 
     // Circle imageView
-    implementation "de.hdodenhof:circleimageview:2.2.0"
+    implementation "de.hdodenhof:circleimageview:$circleimageview_version"
 
     //Quest
-    implementation 'com.androidmapsextensions:android-maps-extensions:2.4.0'
-    implementation 'com.akexorcist:googledirectionlibrary:1.1.1'
+    implementation "com.androidmapsextensions:android-maps-extensions:$android_maps_extensions_version"
+    implementation "com.akexorcist:googledirectionlibrary:$googledirectionlibrary_version"
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation "junit:junit:$junit_version"
+    androidTestImplementation "com.android.support.test:runner:$support_test_runner"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$support_test_espresso_espresso_core"
 
 }
 apply plugin: 'com.google.gms.google-services'
