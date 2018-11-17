@@ -78,7 +78,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private val markersList = ArrayList<Marker>()
     private lateinit var questViewModel: QuestViewModel
     private var userCurrentLocation = defaultLatLng
-    private val model = QuestViewModel()
     private var previousClickedMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,10 +95,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             userCurrentLocation = it!!
             if (mPositionMarker != null) {
                 mPositionMarker!!.position = userCurrentLocation
-                if(locationListFromDatabase != null) {
-                    questViewModel.getUserStatusForQuest(currentQuestName!!, getLatLngList(locationListFromDatabase!!))
-                    questViewModel.locationCheckInListener()
-                }
+                questViewModel.getUserStatusForQuest(currentQuestName!!)
+                questViewModel.locationCheckInListener()
             }
         })
 
@@ -162,17 +159,17 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
         secretMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
 
-        model.drawRoute(currentQuestName!!)
+        questViewModel.drawRoute(currentQuestName!!)
 
         var markersList = emptyList<LocationStructure>()
         val polylinesObserver = Observer<ArrayList<ArrayList<LatLng>>> { polylines -> createPolylines(polylines!!)}
-        model.polylinesLiveData.observe(this, polylinesObserver)
+        questViewModel.polylinesLiveData.observe(this, polylinesObserver)
 
         val markersObserver = Observer<List<LocationStructure>> { markers -> markersList = markers!! }
-        model.locationLiveData.observe(this, markersObserver)
+        questViewModel.locationLiveData.observe(this, markersObserver)
 
         val distanceObserver = Observer<ArrayList<ArrayList<String>>> { distances -> if(markersList.isNotEmpty() and distances!!.isNotEmpty()) createMarkers(markersList, distances!!)  }
-        model.distanceLiveData.observe(this, distanceObserver)
+        questViewModel.distanceLiveData.observe(this, distanceObserver)
 
 
         //set user marker and user location button
@@ -193,7 +190,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun initUserLocationUpdates(questViewModel: QuestViewModel, locationSystemService: Any) {
         if (fineLocationEnabled() || coarceLocationEnabled()) {
-            questViewModel.checkLocationUpdates(locationSystemService)
             questViewModel.checkUserLocationUpdates(locationSystemService)
         } else requestPermission()
     }
