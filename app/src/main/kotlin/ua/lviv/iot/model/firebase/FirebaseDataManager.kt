@@ -6,6 +6,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.map.Location
 import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.model.map.LocationStructure
@@ -53,6 +54,11 @@ class FirebaseDataManager private constructor(){
     interface UserWritingListener {
         fun onSuccess()
         fun onError()
+    }
+
+    interface LastLocationByQuestListener {
+        fun onSuccess(location: Int)
+        fun onError(resultStatus: EventResultStatus)
     }
 
     interface DataRetrieverListenerForSingleQuestStructure {
@@ -174,6 +180,25 @@ class FirebaseDataManager private constructor(){
                 listener.onError(databaseError)
             }
         })
+    }
+
+    fun getLastLocationByQuest(uId: String, questName: String, listener: LastLocationByQuestListener) {
+        firebaseDatabase.getReference("userData").child(uId).child("quests").child(questName).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+                listener.onError(EventResultStatus.NO_EVENT)
+            }
+            override fun onDataChange(p0: DataSnapshot) {
+                if (p0.getValue(Int::class.java) != null) {
+                    listener.onSuccess(p0.getValue(Int::class.java)!!)
+                }
+                else {listener.onError(EventResultStatus.EVENT_FAILED)}
+            }
+
+        })
+    }
+
+    fun setLastLocationByQuest(uId: String, questName: String, location: Int) {
+        firebaseDatabase.reference.child("userData").child(uId).child("quests").child(questName).setValue(location)
     }
 
     fun writeUserPoints(uId: String, points: Int) {

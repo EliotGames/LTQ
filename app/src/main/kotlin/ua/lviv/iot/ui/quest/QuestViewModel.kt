@@ -2,16 +2,15 @@ package ua.lviv.iot.ui.quest
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import android.location.Location
-import android.location.LocationListener
 import com.androidmapsextensions.Marker
 import com.google.android.gms.maps.model.LatLng
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.map.LocationStructure
-import android.os.Bundle
-import com.google.android.gms.maps.CameraUpdateFactory
-import android.location.LocationManager
 import android.util.Log
+import ua.lviv.iot.model.EventResultStatus
+import ua.lviv.iot.model.firebase.FirebaseLoginManager
+import ua.lviv.iot.model.firebase.Repository
+import ua.lviv.iot.model.map.LocationManager
 import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.GoogleDirection
 import com.akexorcist.googledirection.constant.TransportMode
@@ -40,13 +39,21 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     val distanceLiveData = MutableLiveData<ArrayList<ArrayList<String>>>()
     private var locationListFromDatabase = mutableListOf<LocationStructure>()
     val locationLiveData = MutableLiveData<List<LocationStructure>>()
+    private val repository = Repository.getInstance(FirebaseDataManager.getInstance())
+    private val loginManager = FirebaseLoginManager()
+    //var checks if app asks questUserStatus only once for each time maps are opened
+    private var isUserStatusRequestSend = false
+    private lateinit var locationManager: LocationManager
     var userCurrentLocation = MutableLiveData<LatLng>().default(defaultLatLng)
+    var locationForCheckInAvailable = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
+    var locationHasChecked = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
+    var newQuestStarted = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
 
 
-    fun checkLocationUpdates(locationSystemService: Any) {
+    fun checkUserLocationUpdates(locationSystemService: Any) {
         UserLocationManager(locationSystemService).checkLocationUpdates(object : UserLocationManager.UserLocationListener {
-            override fun onSuccess(location: Location) {
-                userCurrentLocation.value = getMyLocation(location)
+            override fun onSuccess(latLng: LatLng) {
+                userCurrentLocation.value = latLng
             }
 
             override fun onError() {
@@ -56,11 +63,69 @@ class QuestViewModel : ViewModel(), DirectionCallback {
         })
     }
 
-    private fun getMyLocation(location: Location): LatLng {
-        val latitude = location.latitude
-        val longitude = location.longitude
-        return LatLng(latitude, longitude)
+    fun getUserStatusForQuest(questName: String) {
+        if (!isUserStatusRequestSend) {
+            if(locationLiveData.value != null) {
+                locationManager = LocationManager(getLatLngList(locationLiveData.value!!))
+                repository.getLastLocationByQuest(loginManager.currentUser!!.uid, questName, object : FirebaseDataManager.LastLocationByQuestListener{
+                    override fun onSuccess(location: Int) {
+                        locationManager.currentLocationIndex = location
+                    }
+                    override fun onError(resultStatus: EventResultStatus) {
+                        when(resultStatus) {
+                            EventResultStatus.NO_EVENT -> Log.e("CheckIn", "firebase call cancelled!")
+                            EventResultStatus.EVENT_FAILED -> {
+                                repository.setLastLocationByQuest(loginManager.currentUser!!.uid, questName, 0)
+                                repository.getLastLocationByQuest(loginManager.currentUser!!.uid, questName, object : FirebaseDataManager.LastLocationByQuestListener {
+                                    override fun onSuccess(location: Int) {
+                                        locationManager.currentLocationIndex = location
+                                        newQuestStarted.value = EventResultStatus.EVENT_SUCCESS
+                                    }
+
+                                    override fun onError(resultStatus: EventResultStatus) {
+                                        newQuestStarted.value = EventResultStatus.EVENT_FAILED
+                                    }
+
+                                })
+                            }
+                        }
+                    }
+                })
+                isUserStatusRequestSend = true
+            }
+
+        }
     }
+
+    fun locationCheckInListener() {
+        if(locationLiveData.value != null) {
+            locationManager.locationCheckInListener(userCurrentLocation.value!!, object: ua.lviv.iot.model.map.LocationManager.LocationCheckInListener{
+                override fun onChange(result: EventResultStatus) {
+                    locationForCheckInAvailable.value = result
+                }
+
+            })
+        }
+    }
+
+    fun activateCheckIn(questName: String) {
+        locationManager.checkInLocation(questName, repository, object : LocationManager.OnLocationChecked {
+            override fun onError(result: EventResultStatus) {
+                when(result) {
+                    EventResultStatus.EVENT_SUCCESS -> Log.e("CheckIn", "getting value is not value we need!")
+                    EventResultStatus.NO_EVENT -> Log.e("CheckIn", "firebase call cancelled!")
+                    EventResultStatus.EVENT_FAILED -> Log.e("CheckIn", "firebase call returns null!")
+                }
+                locationHasChecked.value = EventResultStatus.EVENT_FAILED
+            }
+            override fun onSuccess() {
+                locationHasChecked.value = EventResultStatus.EVENT_SUCCESS
+                //Other activity after location checIn
+            }
+
+        })
+    }
+
 
     fun <T : Any?> MutableLiveData<T>.default(initialValue: T) = apply { setValue(initialValue) }
 

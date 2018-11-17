@@ -11,6 +11,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.opengl.Visibility
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
@@ -30,7 +31,11 @@ import com.androidmapsextensions.MarkerOptions
 import com.androidmapsextensions.PolylineOptions
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
+import com.google.firebase.database.DatabaseError
+import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
+import ua.lviv.iot.model.EventResultStatus
+import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
@@ -73,7 +78,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private val markersList = ArrayList<Marker>()
     private lateinit var questViewModel: QuestViewModel
     private var userCurrentLocation = defaultLatLng
-    private val model = QuestViewModel()
     private var previousClickedMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,13 +90,49 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         val factory = InjectorUtils.provideQuestViewModelFactory()
         questViewModel = ViewModelProviders.of(this, factory).get(QuestViewModel::class.java)
         initUserLocationUpdates(questViewModel, getSystemService(Context.LOCATION_SERVICE))
+
         questViewModel.userCurrentLocation.observe(this, Observer {
             userCurrentLocation = it!!
             if (mPositionMarker != null) {
                 mPositionMarker!!.position = userCurrentLocation
+                questViewModel.getUserStatusForQuest(currentQuestName!!)
+                questViewModel.locationCheckInListener()
             }
         })
+
+        questViewModel.newQuestStarted.observe(this, Observer {
+            when(it) {
+                EventResultStatus.EVENT_SUCCESS -> Toast.makeText(this, R.string.new_quest_start_success, Toast.LENGTH_SHORT).show()
+                EventResultStatus.EVENT_FAILED -> Toast.makeText(this, R.string.new_quest_start_fail, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        questViewModel.locationForCheckInAvailable.observe(this, Observer {
+            if(it == EventResultStatus.EVENT_SUCCESS) {
+                check_in_button.visibility = View.VISIBLE
+            }
+            else if (it == EventResultStatus.NO_EVENT) {
+                check_in_button.visibility = View.INVISIBLE
+            }
+        })
+
+        questViewModel.locationHasChecked.observe(this, Observer {
+            when(it) {
+                EventResultStatus.EVENT_SUCCESS -> {
+                    Toast.makeText(this, R.string.check_in_success, Toast.LENGTH_SHORT).show()
+                    questViewModel.locationHasChecked.value = EventResultStatus.NO_EVENT
+                }
+                EventResultStatus.EVENT_FAILED -> {Toast.makeText(this, R.string.check_in_failed, Toast.LENGTH_SHORT).show()}
+                EventResultStatus.NO_EVENT -> {}
+            }
+        })
+        //-------------------------------------------------------------------------------------------------
         bottomSheetInit()
+
+        check_in_button.setOnClickListener {
+            questViewModel.activateCheckIn(currentQuestName!!)
+        }
+
         fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@QuestActivity, Observer {
             observe(it)
         })
@@ -119,17 +159,17 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
         secretMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
 
-        model.drawRoute(currentQuestName!!)
+        questViewModel.drawRoute(currentQuestName!!)
 
         var markersList = emptyList<LocationStructure>()
         val polylinesObserver = Observer<ArrayList<ArrayList<LatLng>>> { polylines -> createPolylines(polylines!!)}
-        model.polylinesLiveData.observe(this, polylinesObserver)
-        
+        questViewModel.polylinesLiveData.observe(this, polylinesObserver)
+
         val markersObserver = Observer<List<LocationStructure>> { markers -> markersList = markers!! }
-        model.locationLiveData.observe(this, markersObserver)
+        questViewModel.locationLiveData.observe(this, markersObserver)
 
         val distanceObserver = Observer<ArrayList<ArrayList<String>>> { distances -> if(markersList.isNotEmpty() and distances!!.isNotEmpty()) createMarkers(markersList, distances!!)  }
-        model.distanceLiveData.observe(this, distanceObserver)
+        questViewModel.distanceLiveData.observe(this, distanceObserver)
 
 
         //set user marker and user location button
@@ -150,7 +190,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun initUserLocationUpdates(questViewModel: QuestViewModel, locationSystemService: Any) {
         if (fineLocationEnabled() || coarceLocationEnabled()) {
-            questViewModel.checkLocationUpdates(locationSystemService)
+            questViewModel.checkUserLocationUpdates(locationSystemService)
         } else requestPermission()
     }
 

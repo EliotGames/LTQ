@@ -18,4 +18,10 @@
     <!--Maps-->
     <string name="permission_denied">LTQ does not have ACCESS_LOCATION permission! Please change this parameter in your settings!</string>
 
+    <!--QuestActivity-->
+    <string name="check_in_success">Congratulations! You have visited new location!</string>
+    <string name="check_in_failed">Hmmm, something went wrong.. Please check in again!</string>
+    <string name="new_quest_start_success">Quest started successfully!</string>
+    <string name="new_quest_start_fail">Sorry, something went wrong when you started this quest..</string>
+
 </resources>
