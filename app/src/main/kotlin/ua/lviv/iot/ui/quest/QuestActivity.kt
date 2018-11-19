@@ -11,7 +11,6 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.opengl.Visibility
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
@@ -19,41 +18,37 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.androidmapsextensions.*
-import com.androidmapsextensions.Marker
-import com.androidmapsextensions.MarkerOptions
-import com.androidmapsextensions.PolylineOptions
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.*
-import com.google.firebase.database.DatabaseError
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.JointType
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
-import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
 import ua.lviv.iot.utils.InjectorUtils
+import ua.lviv.iot.utils.LVIV_LAT
+import ua.lviv.iot.utils.LVIV_LNG
 import ua.lviv.iot.utils.MarkerType
 
 
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private val MY_LOCATION_PERMISSIONS_REQUEST = 121
-    private val DEFAULT_LATITUDE = 49.841787
-    private val DEFAULT_LONGITUDE = 24.031686
-    private val defaultLatLng = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+
     private lateinit var mMap: GoogleMap
     private var numberOfNormalMarker: TextView? = null
     private var numberOfBlackMarker: TextView? = null
     private var mPositionMarker: Marker? = null
-    private val myLocationButton: View? = null
-    private val drawerLayout: DrawerLayout? = null
     private val firebaseDataManager = FirebaseDataManager.getInstance()
     private val firebaseAuthManager: FirebaseLoginManager? = null
     private val navigationView: NavigationView? = null
@@ -77,7 +72,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private val currentUserId: String? = null
     private val markersList = ArrayList<Marker>()
     private lateinit var questViewModel: QuestViewModel
-    private var userCurrentLocation = defaultLatLng
+    private var userCurrentLocation = LatLng(LVIV_LAT, LVIV_LNG)
     private var previousClickedMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,35 +96,37 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         questViewModel.newQuestStarted.observe(this, Observer {
-            when(it) {
+            when (it) {
                 EventResultStatus.EVENT_SUCCESS -> Toast.makeText(this, R.string.new_quest_start_success, Toast.LENGTH_SHORT).show()
                 EventResultStatus.EVENT_FAILED -> Toast.makeText(this, R.string.new_quest_start_fail, Toast.LENGTH_SHORT).show()
             }
         })
 
         questViewModel.locationForCheckInAvailable.observe(this, Observer {
-            if(it == EventResultStatus.EVENT_SUCCESS) {
-                check_in_button.visibility = View.VISIBLE
-            }
-            else if (it == EventResultStatus.NO_EVENT) {
-                check_in_button.visibility = View.INVISIBLE
+            if (it == EventResultStatus.EVENT_SUCCESS) {
+                fab_quest_checkin.show()
+            } else if (it == EventResultStatus.NO_EVENT) {
+                fab_quest_checkin.hide()
             }
         })
 
         questViewModel.locationHasChecked.observe(this, Observer {
-            when(it) {
+            when (it) {
                 EventResultStatus.EVENT_SUCCESS -> {
                     Toast.makeText(this, R.string.check_in_success, Toast.LENGTH_SHORT).show()
                     questViewModel.locationHasChecked.value = EventResultStatus.NO_EVENT
                 }
-                EventResultStatus.EVENT_FAILED -> {Toast.makeText(this, R.string.check_in_failed, Toast.LENGTH_SHORT).show()}
-                EventResultStatus.NO_EVENT -> {}
+                EventResultStatus.EVENT_FAILED -> {
+                    Toast.makeText(this, R.string.check_in_failed, Toast.LENGTH_SHORT).show()
+                }
+                EventResultStatus.NO_EVENT -> {
+                }
             }
         })
         //-------------------------------------------------------------------------------------------------
-        bottomSheetInit()
+        initBottomSheet()
 
-        check_in_button.setOnClickListener {
+        fab_quest_checkin.setOnClickListener {
             questViewModel.activateCheckIn(currentQuestName!!)
         }
 
@@ -141,12 +138,24 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        with(mMap) {
+            setMinZoomPreference(12.0f)
+            setMaxZoomPreference(19.0f)
+            moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(LVIV_LAT, LVIV_LNG), 15.5f))
+        }
+
         try {
             mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(
                     this, R.raw.silver_style_maps))
         } catch (e: Resources.NotFoundException) {
-            e.message
+            Log.e("Quest Activity", e.message)
         }
+
+        mMap.setOnMapClickListener {
+            mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+            setImagesListVisibility(false)
+        }
+
         inflater = applicationContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
         normalMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
@@ -162,13 +171,13 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         questViewModel.drawRoute(currentQuestName!!)
 
         var markersList = emptyList<LocationStructure>()
-        val polylinesObserver = Observer<ArrayList<ArrayList<LatLng>>> { polylines -> createPolylines(polylines!!)}
+        val polylinesObserver = Observer<ArrayList<ArrayList<LatLng>>> { polylines -> createPolylines(polylines!!) }
         questViewModel.polylinesLiveData.observe(this, polylinesObserver)
 
         val markersObserver = Observer<List<LocationStructure>> { markers -> markersList = markers!! }
         questViewModel.locationLiveData.observe(this, markersObserver)
 
-        val distanceObserver = Observer<ArrayList<ArrayList<String>>> { distances -> if(markersList.isNotEmpty() and distances!!.isNotEmpty()) createMarkers(markersList, distances!!)  }
+        val distanceObserver = Observer<ArrayList<ArrayList<String>>> { distances -> if (markersList.isNotEmpty() and distances!!.isNotEmpty()) createMarkers(markersList, distances!!) }
         questViewModel.distanceLiveData.observe(this, distanceObserver)
 
 
@@ -240,18 +249,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     //-----------------------------------------------------------------------------------------------
 
 
-    private fun focusMapOnMarkers(markersList: List<Marker>) {
-        val builder = LatLngBounds.builder()
-        for (marker in markersList) {
-            builder.include(marker.position)
-        }
-        val bounds = builder.build()
-        val padding = 65 // offset from edges of the map in pixels
-        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
-        mMap.animateCamera(cameraUpdate)
-    }
-
-
     private fun createPolylines(list: ArrayList<ArrayList<LatLng>>) {
         val finalPolylineList = ArrayList<LatLng>()
         for (i in list) {
@@ -296,7 +293,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             changeMarkerListener()
-            focusMapOnMarkers(markersList)
         }
     }
 
@@ -312,7 +308,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun changeMarkerListener() {
         mMap.setOnMarkerClickListener { marker ->
-            if ( marker.title != "mPositionMarker") {
+            if (marker.title != "mPositionMarker") {
                 val locationStructure = marker.getData<LocationStructure>()
                 if (!locationStructure.isSecret) {
                     if (previousClickedMarker != null && previousClickedMarker != marker) {
@@ -320,7 +316,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                     previousClickedMarker = marker
                     changeMarkerView(marker, MarkerType.BLACK)
-                    mBottomSheetBehavior!!.isHideable = true
+
                     bottomSheetInfo!!.text = locationStructure.locationDescription
                     bottomSheetName!!.text = locationStructure.locationName
                     mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -335,8 +331,14 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     mBottomSheetBehavior!!.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                         override fun onStateChanged(view: View, currentState: Int) {
-                            if (currentState == BottomSheetBehavior.STATE_HIDDEN) {
-                                changeMarkerView(marker, MarkerType.NORMAL)
+                            when (currentState) {
+                                BottomSheetBehavior.STATE_HIDDEN -> {
+                                    changeMarkerView(marker, MarkerType.NORMAL)
+                                    setImagesListVisibility(false)
+                                }
+                                BottomSheetBehavior.STATE_EXPANDED -> {
+                                    fab_quest_checkin.hide()
+                                }
                             }
                         }
 
@@ -350,14 +352,12 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun bottomSheetInit() {
+    private fun initBottomSheet() {
         bottomSheet = findViewById(R.id.bottom_sheet)
         bottomSheetName = findViewById(R.id.bottom_sheet_name)
         bottomSheetInfo = findViewById(R.id.bottom_sheet_info)
         bottomSheetSkipButton = findViewById(R.id.bottom_sheet_skip)
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        mBottomSheetBehavior!!.isHideable = true
-        mBottomSheetBehavior!!.peekHeight = 384
         mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
     }
 

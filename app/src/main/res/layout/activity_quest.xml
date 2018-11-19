@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:appRetrofit="http://schemas.android.com/apk/res-auto"
@@ -25,20 +24,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context="ua.lviv.iot.ui.quest.QuestActivity" />
-
-
-        <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/myLocationButton"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_marginTop="20dp"-->
-        <!--android:layout_marginEnd="20dp"-->
-        <!--android:layout_below="@id/appBarLayout"-->
-        <!--app:backgroundTint="@color/colorText"-->
-        <!--android:src="@drawable/my_location_icon"-->
-        <!--app:fabSize="mini"-->
-        <!--/>-->
 
     </RelativeLayout>
 
@@ -96,28 +81,35 @@
         </LinearLayout>
     </HorizontalScrollView>
 
+    <!-- Bottom Sheet Stuff -->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_quest_checkin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_check_in"
+        app:backgroundTint="@color/colorAccent"
+        app:layout_anchor="@id/bottom_sheet"
+        app:layout_anchorGravity="top|center"
+        app:fabSize="normal" />
+
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="90dp"
         android:background="@color/colorBottomSheet"
         android:clipToPadding="true"
+        android:paddingTop="10dp"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="300dp"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/check_in_button"
-                android:text="Check In!"
-                android:background="@color/colorPrimaryDark"
-                android:layout_gravity="center_horizontal"
-                android:clickable="false"
-                android:visibility="invisible"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

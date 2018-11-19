@@ -66,6 +66,7 @@ class FirebaseDataManager private constructor(){
         fun onError(databaseError: DatabaseError)
     }
 
+
     /*fun categoriesNamesListRetriever(listener: DataRetrieveListenerForQuestCategory) {
         firebaseDatabase.getReference("categories").addListenerForSingleValueEvent(object : ValueEventListener() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
