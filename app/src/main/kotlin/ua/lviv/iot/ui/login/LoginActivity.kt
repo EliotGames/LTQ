@@ -122,7 +122,6 @@ class LoginActivity : AppCompatActivity() {
                         val signInIntent = googleSignInClient.signInIntent
 
                         startActivityForResult(signInIntent, REQUEST_CODE_GOOGLE_LOGIN)
-                        finish()
                     }
                 })
             } else {

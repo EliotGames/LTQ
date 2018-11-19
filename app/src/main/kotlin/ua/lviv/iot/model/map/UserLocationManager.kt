@@ -15,8 +15,6 @@ import kotlin.math.sqrt
 class UserLocationManager(locationSystemService: Any) {
 
     private var DEFAULT_VALUE_LATLNG = LatLng(0.0, 0.0)
-    private var previousLatLng = DEFAULT_VALUE_LATLNG
-    private var coordinateJumpCounter = 0
 
     private var locationManager: LocationManager? = locationSystemService as LocationManager
 
@@ -33,7 +31,7 @@ class UserLocationManager(locationSystemService: Any) {
 
     @SuppressLint("MissingPermission")
     fun checkLocationUpdates(listener: UserLocationManager.UserLocationListener) {
-        locationManager?.requestLocationUpdates(chooseLocationManagerType(), 10000, 0.toFloat(), object : LocationListener {
+        locationManager?.requestLocationUpdates(chooseLocationManagerType(), 3000, 5.toFloat(), object : LocationListener {
             override fun onLocationChanged(p0: Location?) {
                 if(p0 == null) {
                     listener.onError()
@@ -58,32 +56,6 @@ class UserLocationManager(locationSystemService: Any) {
         })
 
     }
-
-    //check location jumping ???
-    /*private fun markerJumpCheck(currentLocation: Location) : LatLng {
-        var currentLatLng = getMyLocation(currentLocation)
-        when {
-            previousLatLng == DEFAULT_VALUE_LATLNG -> {
-                previousLatLng = currentLatLng
-                return currentLatLng
-            }
-            isCheckInAvailable(currentLatLng, previousLatLng) <= 5 -> {
-                previousLatLng = currentLatLng
-                return currentLatLng
-            }
-            coordinateJumpCounter > 3 -> {
-                coordinateJumpCounter = 0
-                previousLatLng = currentLatLng
-                return currentLatLng
-            }
-            else -> {
-                coordinateJumpCounter++
-                return previousLatLng
-            }
-        }
-    }*/
-
-    //check
 
     interface UserLocationListener {
         fun onSuccess(latLng: LatLng)

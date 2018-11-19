@@ -2,10 +2,13 @@ package ua.lviv.iot.ui.quest
 
 //import sun.management.VMOptionCompositeData.getOrigin
 import android.Manifest
+import android.app.AlertDialog
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -36,6 +39,8 @@ import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
+import ua.lviv.iot.ui.MainActivity
+import ua.lviv.iot.ui.user.UserActivity
 import ua.lviv.iot.utils.InjectorUtils
 import ua.lviv.iot.utils.LVIV_LAT
 import ua.lviv.iot.utils.LVIV_LNG
@@ -123,6 +128,15 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         })
+
+        questViewModel.isGuestStartQuest.observe(this, Observer {
+            when (it) {
+                EventResultStatus.EVENT_SUCCESS -> {
+                    alertDialogForGuest()
+                }
+                EventResultStatus.NO_EVENT -> {}
+            }
+        })
         //-------------------------------------------------------------------------------------------------
         initBottomSheet()
 
@@ -186,6 +200,29 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             setUserLocationMarker(mMap)
         }
     }
+
+    //ALERT DIALOGS----------------------------------------------------------------------------------------------
+
+    //ALERT DIALOG SHOWS WHEN GUEST START A QUEST-----------------------------------------------------------------------------------
+    private fun alertDialogForGuest() {
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle("Quest Alert!")
+        alertDialog.setMessage(getString(R.string.quest_alert_for_guest))
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Remind me later", object : DialogInterface.OnClickListener {
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+                alertDialog.dismiss()
+            }
+        })
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sign in now!", object : DialogInterface.OnClickListener {
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+                startActivity(Intent(this@QuestActivity, UserActivity::class.java).putExtra("fragment", "profile"))
+                finish()
+            }
+        })
+        alertDialog.show()
+    }
+
+    //-----------------------------------------------------------------------------------------------------
 
     //USER CURRENT LOCATION---------------------------------------------------------------------------
 

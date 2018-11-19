@@ -22,7 +22,7 @@ class LocationManager(private val locationsList: ArrayList<LatLng>) {
         }
     }
 
-    
+
     //call when user click CheckIn button to update user data
     fun checkInLocation(questName: String, repository: Repository, listener: OnLocationChecked) {
         repository.setLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questName, currentLocationIndex+1)
