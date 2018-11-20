@@ -119,7 +119,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     }
 
     fun activateCheckIn(questName: String) {
-        if (isGuestStartQuest == EventResultStatus.NO_EVENT) {
+        if (isGuestStartQuest.value == EventResultStatus.NO_EVENT) {
             locationManager.checkInLocation(questName, repository, object : LocationManager.OnLocationChecked {
                 override fun onError(result: EventResultStatus) {
                     when(result) {
