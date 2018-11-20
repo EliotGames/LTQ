@@ -14,11 +14,11 @@ class LocationManager(private val locationsList: ArrayList<LatLng>) {
 
     //listen if user is in location check_zone
     fun locationCheckInListener(userLocation: LatLng, listener: LocationCheckInListener) {
-        for(i in currentLocationIndex..(locationsList.size-1)) {
-            if(isCheckInAvailable(locationsList[currentLocationIndex], userLocation, CHECKIN_ZONE)) {
-                listener.onChange(EventResultStatus.EVENT_SUCCESS)
-            }
-            else {listener.onChange(EventResultStatus.NO_EVENT)}
+        if(isCheckInAvailable(locationsList[currentLocationIndex], userLocation, CHECKIN_ZONE)) {
+            listener.onChange(EventResultStatus.EVENT_SUCCESS)
+        }
+        else {
+            listener.onChange(EventResultStatus.NO_EVENT)
         }
     }
 
