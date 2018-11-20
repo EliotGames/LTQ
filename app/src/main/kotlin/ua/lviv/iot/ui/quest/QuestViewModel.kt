@@ -5,19 +5,17 @@ import android.arch.lifecycle.ViewModel
 import com.androidmapsextensions.Marker
 import com.google.android.gms.maps.model.LatLng
 import ua.lviv.iot.model.firebase.FirebaseDataManager
-import ua.lviv.iot.model.map.LocationStructure
 import android.util.Log
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.firebase.Repository
-import ua.lviv.iot.model.map.LocationManager
 import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.GoogleDirection
 import com.akexorcist.googledirection.constant.TransportMode
 import com.akexorcist.googledirection.model.Direction
 import com.google.firebase.database.DatabaseError
-import ua.lviv.iot.model.map.Quest
-import ua.lviv.iot.model.map.UserLocationManager
+import com.google.firebase.database.logging.AndroidLogger
+import ua.lviv.iot.model.map.*
 
 
 class QuestViewModel : ViewModel(), DirectionCallback {
@@ -276,6 +274,28 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     override fun onDirectionFailure(t: Throwable) {
         Log.e("Error", t.localizedMessage)
     }
+
+//    private fun findClosestPoints(latLonList: ArrayList<ArrayList<LatLng>>, usersLatLng: LatLng) {
+//        var singleList = ArrayList<LatLng>()
+//        latLonList.forEach { e -> singleList.addAll(e) }
+//        var closest1: LatLng
+//        var closestDistance: Number
+//        var currentDistance: Number
+//        var closest2: LatLng
+//
+//        val usersLocation = android.location.Location("")
+//        usersLocation.latitude = usersLatLng.latitude
+//        usersLocation.longitude = usersLatLng.longitude
+//        for (i in singleList) {
+//            val location1 = android.location.Location("")
+//            location1.latitude = i.latitude
+//            location1.longitude = i.longitude
+//            currentDistance = location1.distanceTo(usersLocation)
+//            if (currentDistance < closestDistance){
+//
+//            }
+//        }
+//    }
 
     //this object is using when guest start a quest to store progress
     companion object {
