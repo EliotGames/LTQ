@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="40dp"
-    android:layout_height="40dp"
-    android:background="@drawable/black_circle_shape"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:background="@drawable/clicked_circle_shape"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/black_marker_number"
+        android:id="@+id/clicked_marker_number"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:width="10dp"
-        android:height="19dp"
+        android:width="12.5dp"
+        android:height="23.75dp"
         android:gravity="center"
         android:lineSpacingMultiplier="1.19"
         android:textColor="#ffffff"
-        android:textSize="16sp" />
+        android:textSize="20sp" />
 
     <TextView
-        android:id="@+id/black_marker_distance"
+        android:id="@+id/clicked_marker_distance"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:width="26dp"
-        android:height="10dp"
+        android:width="32.5dp"
+        android:height="12.5dp"
         android:gravity="center"
         android:lineSpacingMultiplier="1.11"
-        android:text="start"
+        android:text="@string/default_marker_distance_value"
         android:textColor="#ffffff"
-        android:textSize="9sp" />
+        android:textSize="11.25sp" />
+
 </LinearLayout>

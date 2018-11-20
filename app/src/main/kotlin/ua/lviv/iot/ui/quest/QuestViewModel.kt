@@ -255,12 +255,12 @@ class QuestViewModel : ViewModel(), DirectionCallback {
                 while (polylinesList.size != prePolylinesList.size + 1) {
                     for (i in 0 until prePolylinesList.size) {
                         for (j in 0 until polylinesList.size) {
-                            if (prePolylinesList[i][prePolylinesList[i].size - 1] == polylinesList[j][0] &&
+                            if (prePolylinesList[i].last() == polylinesList[j].first() &&
                                     !polylinesList.contains(prePolylinesList[i])) {
                                 polylinesList.add(j, prePolylinesList[i])
                                 distanceList.add(j, predistanceList[i])
                             }
-                            if (prePolylinesList[i][0] == polylinesList[j][polylinesList[j].size - 1] &&
+                            if (prePolylinesList[i].first() == polylinesList[j].last() &&
                                     !polylinesList.contains(prePolylinesList[i])) {
                                 polylinesList.add(j + 1, prePolylinesList[i])
                                 distanceList.add(j + 1, predistanceList[i])

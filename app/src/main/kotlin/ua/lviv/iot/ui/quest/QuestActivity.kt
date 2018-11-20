@@ -19,6 +19,7 @@ import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,11 +28,11 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.androidmapsextensions.*
+import com.androidmapsextensions.Marker
+import com.androidmapsextensions.MarkerOptions
+import com.androidmapsextensions.PolylineOptions
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.JointType
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
@@ -51,17 +52,25 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private var numberOfNormalMarker: TextView? = null
     private var numberOfBlackMarker: TextView? = null
+    private var numberOfClickedMarker: TextView? = null
+    private var numberOfClickedBlackMarker: TextView? = null
     private var mPositionMarker: Marker? = null
+    private val myLocationButton: View? = null
+    private val drawerLayout: DrawerLayout? = null
     private val firebaseDataManager = FirebaseDataManager.getInstance()
     private val firebaseAuthManager: FirebaseLoginManager? = null
     private val navigationView: NavigationView? = null
     private var data = ArrayList<LatLng>()
     private var distanceNormalMarker: TextView? = null
     private var distanceBlackMarker: TextView? = null
+    private var distanceClickedBlackMarker: TextView? = null
+    private var distanceClickedMarker: TextView? = null
     private var inflater: LayoutInflater? = null
     private var normalMarkerInflated: View? = null
     private var blackMarkerInflated: View? = null
+    private var clickedMarkerInflated: View? = null
     private var secretMarkerInflated: View? = null
+    private var clickedBlackMarkerInflated: View? = null
 
     private var bottomSheet: View? = null
     private var mBottomSheetBehavior: BottomSheetBehavior<*>? = null
@@ -77,6 +86,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var questViewModel: QuestViewModel
     private var userCurrentLocation = LatLng(LVIV_LAT, LVIV_LNG)
     private var previousClickedMarker: Marker? = null
+    private var previousClickedMarkerZindex = 0.0f
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,6 +174,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.e("Quest Activity", e.message)
         }
 
+        mMap.isBuildingsEnabled = false
+
         mMap.setOnMapClickListener {
             mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
             setImagesListVisibility(false)
@@ -175,8 +188,16 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         distanceNormalMarker = normalMarkerInflated!!.findViewById(R.id.marker_distance) as TextView
 
         blackMarkerInflated = inflater!!.inflate(R.layout.view_marker_black, null)
-        numberOfBlackMarker = blackMarkerInflated!!.findViewById(R.id.changed_marker_number) as TextView
-        distanceBlackMarker = blackMarkerInflated!!.findViewById(R.id.changed_marker_distance) as TextView
+        numberOfBlackMarker = blackMarkerInflated!!.findViewById(R.id.black_marker_number) as TextView
+        distanceBlackMarker = blackMarkerInflated!!.findViewById(R.id.black_marker_distance) as TextView
+
+        clickedMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored_clicked, null)
+        numberOfClickedMarker = clickedMarkerInflated!!.findViewById(R.id.clicked_marker_number) as TextView
+        distanceClickedMarker = clickedMarkerInflated!!.findViewById(R.id.clicked_marker_distance) as TextView
+
+        clickedBlackMarkerInflated = inflater!!.inflate(R.layout.view_marker_black_clicked, null)
+        numberOfClickedBlackMarker = clickedBlackMarkerInflated!!.findViewById(R.id.clicked_black_marker_number) as TextView
+        distanceClickedBlackMarker = clickedBlackMarkerInflated!!.findViewById(R.id.clicked_black_marker_distance) as TextView
 
         secretMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
 
@@ -284,6 +305,18 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     //-----------------------------------------------------------------------------------------------
 
 
+    private fun focusMapOnMarkers(markersList: List<Marker>) {
+        val builder = LatLngBounds.builder()
+        for (marker in markersList) {
+            builder.include(marker.position)
+        }
+        val bounds = builder.build()
+        val padding = 65 // offset from edges of the map in pixels
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+        mMap.animateCamera(cameraUpdate)
+    }
+
+
     private fun createPolylines(list: ArrayList<ArrayList<LatLng>>) {
         val finalPolylineList = ArrayList<LatLng>()
         for (i in list) {
@@ -314,7 +347,10 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                     val marker = mMap.addMarker(MarkerOptions()
                             .position(LatLng(locationStructureList[i].lat, locationStructureList[i].lon))
                             .anchor(0.5f, 0.5f)
-                            .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!))))
+                            .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!)))
+                            .title("mMarker")
+                            .zIndex((locationStructureList.size - i).toFloat()))
+
                     locationStructureList[i].locationID = i + 1
                     marker.setData(locationStructureList[i])
                     markersList.add(marker)
@@ -328,6 +364,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             changeMarkerListener()
+            focusMapOnMarkers(markersList)
         }
     }
 
@@ -347,11 +384,17 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 val locationStructure = marker.getData<LocationStructure>()
                 if (!locationStructure.isSecret) {
                     if (previousClickedMarker != null && previousClickedMarker != marker) {
-                        changeMarkerView(previousClickedMarker!!, MarkerType.NORMAL)
+                        previousClickedMarker!!.zIndex = previousClickedMarkerZindex
+                        changeMarkerView(previousClickedMarker!!, MarkerType.BLACK)
                     }
                     previousClickedMarker = marker
-                    changeMarkerView(marker, MarkerType.BLACK)
-
+                    previousClickedMarkerZindex = marker.zIndex
+                    if (marker.title == "mMarker") {
+                        changeMarkerView(marker, MarkerType.CLICKED)
+                    } else {
+                        changeMarkerView(marker, MarkerType.BLACK_CLICKED)
+                    }
+                    mBottomSheetBehavior!!.isHideable = true
                     bottomSheetInfo!!.text = locationStructure.locationDescription
                     bottomSheetName!!.text = locationStructure.locationName
                     mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -406,9 +449,23 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!)))
             }
             MarkerType.BLACK -> {
-                distanceBlackMarker!!.text = distance
+                marker.title = "mBlackMarker"
+                marker.zIndex = 0.0f
+                distanceBlackMarker!!.text = "done"
                 numberOfBlackMarker!!.text = locationId!!.toString()
                 marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(blackMarkerInflated!!)))
+            }
+            MarkerType.CLICKED -> {
+                distanceClickedMarker!!.text = distance
+                numberOfClickedMarker!!.text = locationId!!.toString()
+                marker.zIndex = 100.0f
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(clickedMarkerInflated!!)))
+            }
+            MarkerType.BLACK_CLICKED -> {
+                distanceClickedBlackMarker!!.text = "done"
+                numberOfClickedBlackMarker!!.text = locationId!!.toString()
+                marker.zIndex = 100.0f
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(clickedBlackMarkerInflated!!)))
             }
             MarkerType.SECRET -> {
 

@@ -6,8 +6,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -18,8 +18,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -30,8 +30,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -41,8 +41,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -52,8 +52,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -63,8 +63,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -74,8 +74,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -85,8 +85,8 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
                     <padding
                         android:bottom="1dp" />
 
@@ -97,33 +97,11 @@
             <item>
                 <shape xmlns:android="http://schemas.android.com/apk/res/android"
                     android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
-                    <solid android:color="@android:color/white" />
+                    <size android:width="50dp"
+                        android:height="50dp" />
+                    <solid android:color="#FF4A4A4A" />
                 </shape>
             </item>
-            <item>
-                <shape xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
-                    <solid android:color="#ffffff" />
-                    <padding android:bottom="1dp"
-                        android:top="1dp"
-                        android:right="1dp"
-                        android:left="1dp"/>
-                </shape>
-            </item>
-
-            <item>
-                <shape xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:shape="oval">
-                    <size android:width="40dp"
-                        android:height="40dp" />
-                    <solid android:color="#FF907AEC" />
-                </shape>
-            </item>
-
         </layer-list>
     </item>
 
