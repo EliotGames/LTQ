@@ -30,7 +30,7 @@ class QuestsAdapter(val items: ArrayList<Quest>) :
 
         holder.mainLayout.setOnClickListener {
             Toast.makeText(context, items[position].questName, Toast.LENGTH_SHORT).show()
-            context.startActivity(Intent(context, QuestActivity::class.java).putExtra("questName", items[position].questName))
+            context.startActivity(Intent(context, QuestActivity::class.java).putExtra("questID", items[position].questID))
         }
     }
 }

@@ -44,8 +44,8 @@ class Repository private  constructor(private val firebaseDataManager: FirebaseD
         return quests
     }
 
-    fun getLastLocationByQuest(uId: String, questName: String, listener: FirebaseDataManager.LastLocationByQuestListener) {
-        firebaseDataManager.getLastLocationByQuest(uId, questName, object: FirebaseDataManager.LastLocationByQuestListener {
+    fun getLastLocationByQuest(uId: String, questID: Int, listener: FirebaseDataManager.LastLocationByQuestListener) {
+        firebaseDataManager.getLastLocationByQuest(uId, questID, object: FirebaseDataManager.LastLocationByQuestListener {
             override fun onSuccess(location: Int) {
                 listener.onSuccess(location)
             }
@@ -55,8 +55,8 @@ class Repository private  constructor(private val firebaseDataManager: FirebaseD
         })
     }
 
-    fun setLastLocationByQuest(uId: String, questName: String, location: Int) {
-        firebaseDataManager.setLastLocationByQuest(uId, questName, location)
+    fun setLastLocationByQuest(uId: String, questID: Int, location: Int) {
+        firebaseDataManager.setLastLocationByQuest(uId, questID, location)
     }
 
 }

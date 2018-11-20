@@ -8,7 +8,7 @@ class User {
     lateinit var quests: HashMap<String, Int>
 
     // default
-    constructor()
+    constructor(){}
 
     // for google and facebook sign up
     constructor(name: String, account: String) {
@@ -16,7 +16,7 @@ class User {
         this.points = 0
         this.email = account
         this.sex = UserSex.CHOOSE_SEX
-        this.quests = HashMap<String, Int>()
+        this.quests = HashMap()
     }
 
     // for edit profile ???

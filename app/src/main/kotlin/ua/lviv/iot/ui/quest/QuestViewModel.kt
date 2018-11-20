@@ -16,6 +16,7 @@ import com.akexorcist.googledirection.GoogleDirection
 import com.akexorcist.googledirection.constant.TransportMode
 import com.akexorcist.googledirection.model.Direction
 import com.google.firebase.database.DatabaseError
+import ua.lviv.iot.model.firebase.UserQuest
 import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.model.map.UserLocationManager
 
@@ -64,12 +65,12 @@ class QuestViewModel : ViewModel(), DirectionCallback {
         })
     }
 
-    fun getUserStatusForQuest(questName: String) {
+    fun getUserStatusForQuest(questID: Int) {
         if (!isUserStatusRequestSend) {
             if(locationLiveData.value != null) {
                 locationManager = LocationManager(getLatLngList(locationLiveData.value!!))
                 if(loginManager.currentUser != null) {
-                    repository.getLastLocationByQuest(loginManager.currentUser!!.uid, questName, object : FirebaseDataManager.LastLocationByQuestListener{
+                    repository.getLastLocationByQuest(loginManager.currentUser!!.uid, questID, object : FirebaseDataManager.LastLocationByQuestListener{
                         override fun onSuccess(location: Int) {
                             locationManager.currentLocationIndex = location
                         }
@@ -77,8 +78,8 @@ class QuestViewModel : ViewModel(), DirectionCallback {
                             when(resultStatus) {
                                 EventResultStatus.NO_EVENT -> Log.e("CheckIn", "firebase call cancelled!")
                                 EventResultStatus.EVENT_FAILED -> {
-                                    repository.setLastLocationByQuest(loginManager.currentUser!!.uid, questName, 0)
-                                    repository.getLastLocationByQuest(loginManager.currentUser!!.uid, questName, object : FirebaseDataManager.LastLocationByQuestListener {
+                                    repository.setLastLocationByQuest(loginManager.currentUser!!.uid, questID, 0)
+                                    repository.getLastLocationByQuest(loginManager.currentUser!!.uid, questID, object : FirebaseDataManager.LastLocationByQuestListener {
                                         override fun onSuccess(location: Int) {
                                             locationManager.currentLocationIndex = location
                                             newQuestStarted.value = EventResultStatus.EVENT_SUCCESS
@@ -94,17 +95,17 @@ class QuestViewModel : ViewModel(), DirectionCallback {
                         }
                     })
                 }
-                else {startQuestWithGuest(questName)}
+                else {startQuestWithGuest(questID)}
                 isUserStatusRequestSend = true
             }
 
         }
     }
 
-    fun startQuestWithGuest(questName: String) {
+    fun startQuestWithGuest(questID: Int) {
         isGuestStartQuest.value = EventResultStatus.EVENT_SUCCESS
-        questMapForGuest = HashMap<String, Int>()
-        questMapForGuest[questName] = 0
+        questMapForGuest = HashMap()
+        questMapForGuest["ID"+questID.toString()] = UserQuest(0)
     }
 
     fun locationCheckInListener() {
@@ -118,9 +119,9 @@ class QuestViewModel : ViewModel(), DirectionCallback {
         }
     }
 
-    fun activateCheckIn(questName: String) {
+    fun activateCheckIn(questID: Int) {
         if (isGuestStartQuest.value == EventResultStatus.NO_EVENT) {
-            locationManager.checkInLocation(questName, repository, object : LocationManager.OnLocationChecked {
+            locationManager.checkInLocation(questID, repository, object : LocationManager.OnLocationChecked {
                 override fun onError(result: EventResultStatus) {
                     when(result) {
                         EventResultStatus.EVENT_SUCCESS -> Log.e("CheckIn", "getting value is not value we need!")
@@ -137,7 +138,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
             })
         }
         else {
-            questMapForGuest[questName] = locationManager.currentLocationIndex++
+            questMapForGuest["ID"+questID.toString()] = UserQuest(locationManager.currentLocationIndex++)
             locationHasChecked.value = EventResultStatus.EVENT_SUCCESS
         }
     }
@@ -147,9 +148,9 @@ class QuestViewModel : ViewModel(), DirectionCallback {
 
     //------------------------------------------------------------------------------------------------------
 
-    fun drawRoute(questName: String) {
+    fun drawRoute(questID: Int) {
 
-        firebaseDataManager.questRetrieverByName(questName, object : FirebaseDataManager.DataRetrieverListenerForSingleQuestStructure {
+        firebaseDataManager.questRetrieverByID(questID, object : FirebaseDataManager.DataRetrieverListenerForSingleQuestStructure {
             override fun onSuccess(questStructure: Quest, locationsIdList: List<Int>) {
                 var currentQuestCategory = questStructure.parentCategoryID
                 firebaseDataManager.locationsListRetriever(locationsIdList, object : FirebaseDataManager.DataRetrieveListenerForLocationsStructure {
@@ -279,7 +280,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
 
     //this object is using when guest start a quest to store progress
     companion object {
-        lateinit var questMapForGuest: HashMap<String, Int>
+        lateinit var questMapForGuest: HashMap<String, UserQuest>
     }
 
 }

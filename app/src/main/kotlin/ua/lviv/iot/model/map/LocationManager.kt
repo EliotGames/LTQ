@@ -24,9 +24,9 @@ class LocationManager(private val locationsList: ArrayList<LatLng>) {
 
 
     //call when user click CheckIn button to update user data
-    fun checkInLocation(questName: String, repository: Repository, listener: OnLocationChecked) {
-        repository.setLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questName, currentLocationIndex+1)
-        repository.getLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questName, object: FirebaseDataManager.LastLocationByQuestListener{
+    fun checkInLocation(questID: Int, repository: Repository, listener: OnLocationChecked) {
+        repository.setLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questID, currentLocationIndex+1)
+        repository.getLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questID, object: FirebaseDataManager.LastLocationByQuestListener{
             override fun onSuccess(location: Int) {
                 if (location == currentLocationIndex+1) {
                     if (checkEndOfQuest(location)) {

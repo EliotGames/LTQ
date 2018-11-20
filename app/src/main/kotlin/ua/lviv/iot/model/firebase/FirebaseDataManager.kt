@@ -183,14 +183,14 @@ class FirebaseDataManager private constructor(){
         })
     }
 
-    fun getLastLocationByQuest(uId: String, questName: String, listener: LastLocationByQuestListener) {
-        firebaseDatabase.getReference("userData").child(uId).child("quests").child(questName).addListenerForSingleValueEvent(object : ValueEventListener {
+    fun getLastLocationByQuest(uId: String, questID: Int, listener: LastLocationByQuestListener) {
+        firebaseDatabase.getReference("userData").child(uId).child("quests").child("ID"+questID.toString()).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 listener.onError(EventResultStatus.NO_EVENT)
             }
             override fun onDataChange(p0: DataSnapshot) {
-                if (p0.getValue(Int::class.java) != null) {
-                    listener.onSuccess(p0.getValue(Int::class.java)!!)
+                if (p0.getValue(UserQuest::class.java) != null) {
+                    listener.onSuccess(p0.getValue(UserQuest::class.java)!!.currentLocation)
                 }
                 else {listener.onError(EventResultStatus.EVENT_FAILED)}
             }
@@ -198,16 +198,16 @@ class FirebaseDataManager private constructor(){
         })
     }
 
-    fun setLastLocationByQuest(uId: String, questName: String, location: Int) {
-        firebaseDatabase.reference.child("userData").child(uId).child("quests").child(questName).setValue(location)
+    fun setLastLocationByQuest(uId: String, questID: Int, location: Int) {
+        firebaseDatabase.reference.child("userData").child(uId).child("quests").child("ID"+questID.toString()).setValue(UserQuest(location))
     }
 
     fun writeUserPoints(uId: String, points: Int) {
         firebaseDatabase.reference.child("userData").child(uId).child("points").setValue(points)
     }
 
-    fun questRetrieverByName(questName: String, listener: DataRetrieverListenerForSingleQuestStructure) {
-        firebaseDatabase.getReference("quest").child(questName).addListenerForSingleValueEvent(object : ValueEventListener {
+    fun questRetrieverByID(questID: Int, listener: DataRetrieverListenerForSingleQuestStructure) {
+        firebaseDatabase.getReference("quest").child(questID.toString()).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
 
                 val locationsIdList = ArrayList<Int>()

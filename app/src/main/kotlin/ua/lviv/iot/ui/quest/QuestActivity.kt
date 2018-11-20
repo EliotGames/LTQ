@@ -19,7 +19,6 @@ import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
@@ -39,7 +38,6 @@ import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
 import ua.lviv.iot.model.map.LocationStructure
-import ua.lviv.iot.ui.MainActivity
 import ua.lviv.iot.ui.user.UserActivity
 import ua.lviv.iot.utils.InjectorUtils
 import ua.lviv.iot.utils.LVIV_LAT
@@ -73,7 +71,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private val isQuestOn: Boolean = false
     private val currentQuestCategory: Int = 0
     private var locationListFromDatabase: List<LocationStructure>? = null
-    private var currentQuestName: String? = null
+    private var currentQuestID: Int? = null
     private val currentUserId: String? = null
     private val markersList = ArrayList<Marker>()
     private lateinit var questViewModel: QuestViewModel
@@ -83,7 +81,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quest)
-        currentQuestName = intent.getStringExtra("questName")
+        currentQuestID = intent.getIntExtra("questID", -1)
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
@@ -95,7 +93,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             userCurrentLocation = it!!
             if (mPositionMarker != null) {
                 mPositionMarker!!.position = userCurrentLocation
-                questViewModel.getUserStatusForQuest(currentQuestName!!)
+                questViewModel.getUserStatusForQuest(currentQuestID!!)
                 questViewModel.locationCheckInListener()
             }
         })
@@ -141,7 +139,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         initBottomSheet()
 
         fab_quest_checkin.setOnClickListener {
-            questViewModel.activateCheckIn(currentQuestName!!)
+            questViewModel.activateCheckIn(currentQuestID!!)
         }
 
         fun <T> LiveData<T>.observe(observe: (T?) -> Unit) = observe(this@QuestActivity, Observer {
@@ -182,7 +180,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
 
         secretMarkerInflated = inflater!!.inflate(R.layout.view_marker_colored, null)
 
-        questViewModel.drawRoute(currentQuestName!!)
+        questViewModel.drawRoute(currentQuestID!!)
 
         var markersList = emptyList<LocationStructure>()
         val polylinesObserver = Observer<ArrayList<ArrayList<LatLng>>> { polylines -> createPolylines(polylines!!) }
