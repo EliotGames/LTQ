@@ -290,6 +290,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 .position(userCurrentLocation)
                 .draggable(false)
                 .title("mPositionMarker"))
+        mPositionMarker!!.zIndex = 100.0f
     }
 
     private fun getBitmap(drawableRes: Int): Bitmap {
