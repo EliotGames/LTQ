@@ -22,35 +22,6 @@ class LocationManager(private val locationsList: ArrayList<LatLng>) {
         }
     }
 
-
-    //call when user click CheckIn button to update user data
-    fun checkInLocation(questID: Int, repository: Repository, listener: OnLocationChecked) {
-        repository.setLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questID, currentLocationIndex+1)
-        repository.getLastLocationByQuest(FirebaseLoginManager().currentUser!!.uid, questID, object: FirebaseDataManager.LastLocationByQuestListener{
-            override fun onSuccess(location: Int) {
-                if (location == currentLocationIndex+1) {
-                    if (checkEndOfQuest(location)) {
-                        TODO()//quest has ended YAHHHHOOOOOOOOO
-                    }
-                    else {
-                        currentLocationIndex++
-                        listener.onSuccess()
-                    }
-                }
-                else {
-                    listener.onError(EventResultStatus.EVENT_SUCCESS)
-                }
-            }
-            override fun onError(resultStatus: EventResultStatus) {
-                listener.onError(resultStatus)
-            }
-         })
-    }
-
-    fun checkEndOfQuest(location: Int) : Boolean {
-        return location == locationsList.size - 1
-    }
-
     //method to find distance between locations---------------------------------------------------------
     private fun isCheckInAvailable(landmark : LatLng, user : LatLng, radius: Double) : Boolean {
         return (user.latitude - landmark.latitude).pow(2) + (user.longitude - landmark.longitude).pow(2) <= radius.pow(2)
