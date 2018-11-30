@@ -66,6 +66,11 @@ class FirebaseDataManager private constructor(){
         fun onError(databaseError: DatabaseError)
     }
 
+    interface BalanceByUserListener {
+        fun onSuccess(balance: Int)
+        fun onError(resultStatus: EventResultStatus)
+    }
+
 
     /*fun categoriesNamesListRetriever(listener: DataRetrieveListenerForQuestCategory) {
         firebaseDatabase.getReference("categories").addListenerForSingleValueEvent(object : ValueEventListener() {
@@ -202,7 +207,18 @@ class FirebaseDataManager private constructor(){
         firebaseDatabase.reference.child("userData").child(uId).child("quests").child("ID"+questID.toString()).setValue(UserQuest(location))
     }
 
-    fun writeUserPoints(uId: String, points: Int) {
+    fun getBalanceByUser(uId: String, listener: BalanceByUserListener) {
+        firebaseDatabase.getReference("userData").child(uId).child("points").addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+                listener.onError(EventResultStatus.EVENT_FAILED)
+            }
+            override fun onDataChange(p0: DataSnapshot) {
+                listener.onSuccess(p0.getValue(Int::class.java)!!)
+            }
+        })
+    }
+
+    fun setUserPoints(uId: String, points: Int) {
         firebaseDatabase.reference.child("userData").child(uId).child("points").setValue(points)
     }
 

@@ -18,6 +18,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
 import android.support.design.widget.BottomSheetBehavior
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -54,6 +55,7 @@ import java.nio.file.Files.find
 
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private val MY_LOCATION_PERMISSIONS_REQUEST = 121
+    private val POINTS_REWARD_FOR_LOCATION = 50
 
     private lateinit var mMap: GoogleMap
     private var numberOfNormalMarker: TextView? = null
@@ -61,12 +63,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private var numberOfClickedMarker: TextView? = null
     private var numberOfClickedBlackMarker: TextView? = null
     private var mPositionMarker: Marker? = null
-    private val myLocationButton: View? = null
-    private val drawerLayout: DrawerLayout? = null
-    private val firebaseDataManager = FirebaseDataManager.getInstance()
-    private val firebaseAuthManager: FirebaseLoginManager? = null
-    private val navigationView: NavigationView? = null
-    private var data = ArrayList<LatLng>()
     private var distanceNormalMarker: TextView? = null
     private var distanceBlackMarker: TextView? = null
     private var distanceClickedBlackMarker: TextView? = null
@@ -83,11 +79,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private var bottomSheetName: TextView? = null
     private var bottomSheetInfo: TextView? = null
     private var bottomSheetSkipButton: Button? = null
-    private val isQuestOn: Boolean = false
-    private val currentQuestCategory: Int = 0
-    private var locationListFromDatabase: List<LocationStructure>? = null
     private var currentQuestID: Int? = null
-    private val currentUserId: String? = null
     private val markersList = ArrayList<Marker>()
     private lateinit var questViewModel: QuestViewModel
     private var userCurrentLocation = LatLng(LVIV_LAT, LVIV_LNG)
@@ -106,6 +98,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
+        questViewModel.updateUserBalance()
 
         questViewModel.userCurrentLocation.observe(this, Observer {
             userCurrentLocation = it!!
@@ -133,9 +126,10 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         questViewModel.locationHasChecked.observe(this, Observer {
             when (it) {
                 EventResultStatus.EVENT_SUCCESS -> {
-                    Toast.makeText(this, R.string.check_in_success, Toast.LENGTH_SHORT).show()
-                    changeMarkerView(markersList[questViewModel.currentLocationIndex - 1], MarkerType.BLACK)
                     questViewModel.locationHasChecked.value = EventResultStatus.NO_EVENT
+                    //Toast.makeText(this, R.string.check_in_success, Toast.LENGTH_SHORT).show()
+                    alertDialogSuccessCheckIn()
+                    changeMarkerView(markersList[questViewModel.currentLocationIndex - 1], MarkerType.BLACK)
                 }
                 EventResultStatus.EVENT_FAILED -> {
                     Toast.makeText(this, R.string.check_in_failed, Toast.LENGTH_SHORT).show()
@@ -158,6 +152,10 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             if(it == QuestViewModel.CheckInPreparing.BOTTOM_SHEET_UP) {
                 markerClickListenerBody(markersList[questViewModel.currentLocationIndex])
             }
+        })
+
+        questViewModel.userBalance.observe(this, Observer {
+            user_balance.text = it.toString()
         })
         //-------------------------------------------------------------------------------------------------
         initBottomSheet()
@@ -249,6 +247,23 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onClick(p0: DialogInterface?, p1: Int) {
                 startActivity(Intent(this@QuestActivity, UserActivity::class.java).putExtra("fragment", "profile"))
                 finish()
+            }
+        })
+        alertDialog.show()
+    }
+
+    //ALERT DIALOG SHOWS WHEN USER HAS CHECKED IN LOCATION-----------------------------------------------------------------------------------
+    private fun alertDialogSuccessCheckIn() {
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle("WELL DONE!")
+        alertDialog.setMessage(getString(R.string.quest_dialog_after_checkin_goodjob)
+            +questViewModel.locationLiveData.value!![questViewModel.currentLocationIndex-1].locationName
+            +getString(R.string.quest_dialog_after_checkin_reward)
+            +"+"+POINTS_REWARD_FOR_LOCATION.toString()+" points")
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "GET NEXT LANDMARK", object : DialogInterface.OnClickListener {
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+                questViewModel.addPointReward(POINTS_REWARD_FOR_LOCATION)
+                alertDialog.dismiss()
             }
         })
         alertDialog.show()
@@ -392,12 +407,12 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                             .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(normalMarkerInflated!!)))
                             .title("mMarker")
                             .zIndex((locationStructureList.size - i).toFloat()))
-                    if (i < questViewModel.currentLocationIndex) {
-                        changeMarkerView(marker, MarkerType.BLACK)
-                    }
                     locationStructureList[i].locationID = i + 1
                     marker.setData(locationStructureList[i])
                     markersList.add(marker)
+                    if (i < questViewModel.currentLocationIndex) {
+                        changeMarkerView(marker, MarkerType.BLACK)
+                    }
                 } else {
                     val secretMarker1 = mMap.addMarker(MarkerOptions()
                             .icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromView(secretMarkerInflated!!)))
@@ -460,8 +475,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             setImagesListVisibility(true)
             bottomSheetSkipButton!!.setOnClickListener {
                 mBottomSheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
-                changeMarkerView(marker, MarkerType.NORMAL)
-
+                checkMarkerViewAfterClick(marker)
+                resetCheckInPreparing()
                 setImagesListVisibility(false)
             }
 
@@ -469,10 +484,8 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 override fun onStateChanged(view: View, currentState: Int) {
                     when (currentState) {
                         BottomSheetBehavior.STATE_HIDDEN -> {
-                            if(questViewModel.getLatLngList(questViewModel.locationLiveData.value!!)
-                                            .indexOf(previousClickedMarker!!.position) >= questViewModel.currentLocationIndex) {
-                                changeMarkerView(marker, MarkerType.NORMAL)
-                            }
+                            checkMarkerViewAfterClick(marker)
+                            resetCheckInPreparing()
                             setImagesListVisibility(false)
                         }
                         BottomSheetBehavior.STATE_EXPANDED -> {
@@ -528,6 +541,24 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
             MarkerType.SECRET -> {
 
             }
+        }
+    }
+
+    //reset value of checkInPreparing var when user click button without result several time
+    private fun resetCheckInPreparing() {
+        if(questViewModel.checkInPreparing.value == QuestViewModel.CheckInPreparing.BOTTOM_SHEET_UP) {
+            questViewModel.checkInPreparing.value = QuestViewModel.CheckInPreparing.NO_CHECK_IN
+        }
+    }
+
+    //check marker view after its click
+    private fun checkMarkerViewAfterClick(marker: Marker) {
+        if(questViewModel.getLatLngList(questViewModel.locationLiveData.value!!)
+                        .indexOf(previousClickedMarker!!.position) >= questViewModel.currentLocationIndex) {
+            changeMarkerView(marker, MarkerType.NORMAL)
+        }
+        else {
+            changeMarkerView(marker, MarkerType.BLACK)
         }
     }
 

@@ -10,11 +10,10 @@ import kotlin.math.pow
 class LocationManager(private val locationsList: ArrayList<LatLng>) {
 
     private val CHECKIN_ZONE = 0.00015
-    var currentLocationIndex = 0
 
     //listen if user is in location check_zone
-    fun locationCheckInListener(userLocation: LatLng, listener: LocationCheckInListener) {
-        if(isCheckInAvailable(locationsList[currentLocationIndex], userLocation, CHECKIN_ZONE)) {
+    fun locationCheckInListener(locationLanLng: LatLng, userLocation: LatLng, listener: LocationCheckInListener) {
+        if(isCheckInAvailable(locationLanLng, userLocation, CHECKIN_ZONE)) {
             listener.onChange(EventResultStatus.EVENT_SUCCESS)
         }
         else {

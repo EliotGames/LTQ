@@ -31,7 +31,7 @@ class UserLocationManager(locationSystemService: Any) {
 
     @SuppressLint("MissingPermission")
     fun checkLocationUpdates(listener: UserLocationManager.UserLocationListener) {
-        locationManager?.requestLocationUpdates(chooseLocationManagerType(), 3000, 5.toFloat(), object : LocationListener {
+        locationManager?.requestLocationUpdates(chooseLocationManagerType(), 3000, 3.toFloat(), object : LocationListener {
             override fun onLocationChanged(p0: Location?) {
                 if(p0 == null) {
                     listener.onError()

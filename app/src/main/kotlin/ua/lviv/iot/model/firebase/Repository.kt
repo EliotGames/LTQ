@@ -59,4 +59,21 @@ class Repository private  constructor(private val firebaseDataManager: FirebaseD
         firebaseDataManager.setLastLocationByQuest(uId, questID, location)
     }
 
+    fun getBalanceByUser(uId: String, listener: FirebaseDataManager.BalanceByUserListener){
+        firebaseDataManager.getBalanceByUser(uId, object : FirebaseDataManager.BalanceByUserListener{
+            override fun onSuccess(balance: Int) {
+                listener.onSuccess(balance)
+            }
+
+            override fun onError(resultStatus: EventResultStatus) {
+                listener.onError(resultStatus)
+            }
+
+        })
+    }
+
+    fun setBalanceByUser(uId: String, balance: Int) {
+        firebaseDataManager.setUserPoints(uId, balance)
+    }
+
 }

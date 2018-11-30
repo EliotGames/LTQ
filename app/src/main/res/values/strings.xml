@@ -20,9 +20,11 @@
 
     <!--QuestActivity-->
     <string name="check_in_success">Congratulations! You have visited new location!</string>
-    <string name="check_in_failed">Hmmm, something went wrong.. Please check in again!</string>
+    <string name="check_in_failed">Hmmm, something went wrong.. Please check your network connection and location access! Maybe you are not near location you need?</string>
     <string name="new_quest_start_success">Quest started successfully!</string>
     <string name="new_quest_start_fail">Sorry, something went wrong when you started this quest..</string>
     <string name="quest_alert_for_guest">You have started a quest, but you are not sign in/sign up in the app, therefore all your progress will be lost if you close LTQuest</string>
+    <string name="quest_dialog_after_checkin_goodjob">Good job! You have visited new landmark: </string>
+    <string name="quest_dialog_after_checkin_reward">\n YOUR REWARDS: \n</string>
 
 </resources>
