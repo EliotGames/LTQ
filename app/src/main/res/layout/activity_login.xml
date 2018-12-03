@@ -4,80 +4,101 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorLoginBackground"
     android:theme="@style/AppTheme.NoActionBar">
+
+    <TextView
+        android:id="@+id/tv_login_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"
+        android:text="Lviv Trip Quest"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        android:textStyle="bold" />
 
     <ImageView
         android:id="@+id/iv_login_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/tv_login_app_name"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
         app:srcCompat="@drawable/all_logo" />
 
-    <TextView
-        android:id="@+id/tb_login_app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_login_logo"
-        android:layout_centerHorizontal="true"
-        android:text="Lviv City Quest"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-
-    <TextView
-        android:id="@+id/tv_login_sign_with"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tb_login_app_name"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:text="Sign in with:"
-        android:textColor="@android:color/white"
-        android:textSize="20sp" />
-
     <LinearLayout
-        android:id="@+id/linearlayout_login_fb_google"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tv_login_sign_with">
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:paddingBottom="40dp"
+        android:orientation="vertical">
 
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/hided_fb_button"
+        <TextView
+            android:id="@+id/tv_login_sign_with"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:text="Log in with:"
+            android:textColor="@android:color/white"
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/btn_login_facebook"
-            style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/linearlayout_login_fb_google"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:src="@drawable/login_facebook_button" />
+            android:gravity="center">
 
-        <ImageButton
-            android:id="@+id/btn_login_google"
-            style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="0dp"
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/hided_fb_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <android.support.design.button.MaterialButton
+                android:id="@+id/btn_login_facebook"
+                style="@style/DefaultButton"
+                android:layout_width="90dp"
+                android:layout_height="100dp"
+                android:layout_marginEnd="20dp"
+                android:text="f"
+                android:textSize="54sp"
+                app:cornerRadius="50dp" />
+
+            <android.support.design.button.MaterialButton
+                android:id="@+id/btn_login_google"
+                style="@style/DefaultButton"
+                android:layout_width="90dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="20dp"
+                android:text="G+"
+                android:textSize="50sp"
+                app:cornerRadius="50dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_login_or"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:src="@drawable/login_google_button" />
+            android:text="or"
+            android:textColor="@android:color/white"
+            android:textSize="30dp"
+            android:layout_marginBottom="10dp"
+            android:textStyle="bold" />
 
+        <android.support.design.button.MaterialButton
+            android:id="@+id/skip_login"
+            style="@style/DefaultButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="Skip registration"
+            android:textSize="20sp"
+            app:cornerRadius="30dp" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/skip_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:layout_below="@+id/linearlayout_login_fb_google"
-        android:layout_centerHorizontal="true"
-        android:text="Skip"
-        android:layout_marginTop="30dp"/>
 </RelativeLayout>

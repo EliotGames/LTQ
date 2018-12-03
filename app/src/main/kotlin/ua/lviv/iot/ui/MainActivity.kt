@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.Button
+import android.widget.TextView
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -24,10 +24,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val mTAG = "MainActivity"
 
     private lateinit var mMapView: MapView
-    private lateinit var mQuestsBtn: Button
-    private lateinit var mBalanceBtn: Button
-    private lateinit var mProfileBtn: Button
-    private lateinit var mRatingBtn: Button
+    private lateinit var mQuestsBtn: TextView
+    private lateinit var mBalanceBtn: TextView
+    private lateinit var mProfileBtn: TextView
+    private lateinit var mRatingBtn: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Customise the map style
         try {
-            val success = googleMap.setMapStyle(
+            val success = googleMap.setMapStyle (
                     MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style_json))
             if (!success) Log.e(mTAG, "Style parsing failed.")
 
@@ -83,6 +83,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Moving camera to Lviv position
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(LVIV_LAT, LVIV_LNG), 17f))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(LVIV_LAT, LVIV_LNG), 15f))
+
+        // Making map not clickable
+        googleMap.uiSettings.setAllGesturesEnabled(false)
     }
 }

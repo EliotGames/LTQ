@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Application Theme-->
-    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Base.Theme.MaterialComponents.Light.DarkActionBar.Bridge">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -11,6 +11,7 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <!-- Activities' themes -->
@@ -22,13 +23,13 @@
 
     <!-- View`s styles-->
     <style name="DefaultButton">
+        <item name="android:fontFamily">serif</item>
+        <item name="android:gravity">center</item>
         <item name="android:textColor">#fff</item>
-        <item name="android:background">@color/colorPrimary</item>
-        <item name="android:foreground">?attr/selectableItemBackground</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:minWidth">160dp</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="strokeColor">#fff</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="UserTitleTextview">

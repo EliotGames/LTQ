@@ -72,8 +72,8 @@ class LoginActivity : AppCompatActivity() {
         })
 
         //ui elements init
-        val buttonFacebook = findViewById<ImageButton>(R.id.btn_login_facebook)
-        val buttonGoogle = findViewById<ImageButton>(R.id.btn_login_google)
+        val buttonFacebook = findViewById<Button>(R.id.btn_login_facebook)
+        val buttonGoogle = findViewById<Button>(R.id.btn_login_google)
         val hideFbBtn = findViewById<com.facebook.login.widget.LoginButton>(R.id.hided_fb_button)
 
         //ui buttons clicklistener

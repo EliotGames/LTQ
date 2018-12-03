@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">LCQ</string>
+    <string name="app_name" translatable="false">LTQ</string>
 
     <!--Google-->
     <string name="google_maps_api_key" translatable="false">AIzaSyAJUx3efU82TyEdQspWgupd9HRS25B3z-U</string>

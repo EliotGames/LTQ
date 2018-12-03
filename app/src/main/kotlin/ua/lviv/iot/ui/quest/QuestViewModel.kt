@@ -200,7 +200,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
         repository.getBalanceByUser(FirebaseLoginManager().currentUser!!.uid, object : FirebaseDataManager.BalanceByUserListener{
             override fun onSuccess(balance: Int) {
                 repository.setBalanceByUser(FirebaseLoginManager().currentUser!!.uid, balance+pointReward)
-                updateUserBalance(balance+pointReward)
+                //updateUserBalance(balance+pointReward)
             }
 
             override fun onError(resultStatus: EventResultStatus) {

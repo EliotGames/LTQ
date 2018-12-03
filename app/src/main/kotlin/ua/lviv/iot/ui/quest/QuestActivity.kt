@@ -98,7 +98,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getExtendedMapAsync(this)
-        questViewModel.updateUserBalance()
+        //questViewModel.updateUserBalance()
 
         questViewModel.userCurrentLocation.observe(this, Observer {
             userCurrentLocation = it!!
