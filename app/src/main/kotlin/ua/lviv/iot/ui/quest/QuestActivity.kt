@@ -35,21 +35,20 @@ import com.androidmapsextensions.Marker
 import com.androidmapsextensions.MarkerOptions
 import com.androidmapsextensions.PolylineOptions
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.model.*
 import kotlinx.android.synthetic.main.activity_quest.*
 import ua.lviv.iot.R
 import ua.lviv.iot.model.EventResultStatus
 import ua.lviv.iot.model.firebase.FirebaseDataManager
 import ua.lviv.iot.model.firebase.FirebaseLoginManager
-import ua.lviv.iot.model.map.LocationManager
 import ua.lviv.iot.model.map.LocationStructure
 import ua.lviv.iot.ui.user.UserActivity
 import ua.lviv.iot.utils.InjectorUtils
 import ua.lviv.iot.utils.LVIV_LAT
 import ua.lviv.iot.utils.LVIV_LNG
 import ua.lviv.iot.utils.MarkerType
-import java.nio.file.Files.find
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -93,7 +92,6 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
     private var userCurrentLocation = LatLng(LVIV_LAT, LVIV_LNG)
     private var previousClickedMarker: Marker? = null
     private var previousClickedMarkerZindex = 0.0f
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -369,6 +367,7 @@ class QuestActivity : AppCompatActivity(), OnMapReadyCallback {
                 .width(11F)
                 .jointType(JointType.BEVEL)
                 .color(Color.rgb(145, 121, 241)))
+        questViewModel.test(list)
     }
 
     private fun createMarkers(locationStructureList: List<LocationStructure>, distanceList: ArrayList<ArrayList<String>>) {

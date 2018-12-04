@@ -2,6 +2,7 @@ package ua.lviv.iot.ui.quest
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.location.Location
 import com.androidmapsextensions.Marker
 import com.google.android.gms.maps.model.LatLng
 import ua.lviv.iot.model.firebase.FirebaseDataManager
@@ -19,6 +20,8 @@ import com.google.firebase.database.DatabaseError
 import ua.lviv.iot.model.firebase.UserQuest
 import ua.lviv.iot.model.map.Quest
 import ua.lviv.iot.model.map.UserLocationManager
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class QuestViewModel : ViewModel(), DirectionCallback {
@@ -40,7 +43,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     val distanceLiveData = MutableLiveData<ArrayList<ArrayList<String>>>()
     private var locationListFromDatabase = mutableListOf<LocationStructure>()
     val locationLiveData = MutableLiveData<List<LocationStructure>>()
-    private val repository = Repository.getInstance(FirebaseDataManager.getInstance())
+    val repository = Repository.getInstance(FirebaseDataManager.getInstance())
     private val loginManager = FirebaseLoginManager()
     //var checks if app asks questUserStatus only once for each time maps are opened
     private var isUserStatusRequestSend = false
@@ -53,7 +56,8 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     var locationHasChecked = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
     var newQuestStarted = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
     var isGuestStartQuest = MutableLiveData<EventResultStatus>().default(EventResultStatus.NO_EVENT)
-
+    private var questID: Int = 0
+    private lateinit var latestPointOnRoute: LatLng
 
     //set new user coordinates from gps
     fun checkUserLocationUpdates(locationSystemService: Any) {
@@ -72,6 +76,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     //get user status in this quest if user has started it, or create new note if not
     //also check is user sign in and if not  - create temporary data
     fun getUserStatusForQuest(questID: Int) {
+        this.questID = questID
         if (!isUserStatusRequestSend) {
             if(locationLiveData.value != null) {
                 locationManager = LocationManager(getLatLngList(locationLiveData.value!!))
@@ -312,6 +317,7 @@ class QuestViewModel : ViewModel(), DirectionCallback {
                         }
                     }
                 }
+                latestPointOnRoute = polylinesList[0][0]
                 polylinesLiveData.postValue(polylinesList)
                 distanceLiveData.postValue(distanceList)
             }
@@ -330,6 +336,104 @@ class QuestViewModel : ViewModel(), DirectionCallback {
     //this object is using when guest start a quest to store progress
     companion object {
         lateinit var questMapForGuest: HashMap<String, UserQuest>
+    }
+
+    private fun drawUsersPath(usersLat: Double, usersLon: Double, polylines: ArrayList<ArrayList<LatLng>>){
+        val polylinesSingle = polylines.flatten()
+        var intersectPoints = ArrayList<ArrayList<LatLng>>()
+        for (i in 0..(polylinesSingle.size-2)){
+            var result = findIntersectionOfLineAndCircle(polylinesSingle, usersLat, usersLon, 2.0)
+            if (result.size != 0){
+
+            }
+        }
+        if (intersectPoints.size == 1){
+            if (intersectPoints[0].size == 2){
+
+            }
+
+        }
+    }
+
+    fun findUserOnRoute(usersLat: Double, usersLon: Double, latestLocation: LatLng, polylines: ArrayList<ArrayList<LatLng>>): Array<Array<LatLng>> {
+        val polylinesSingle = polylines.flatten()
+        val intersectionsLists = findIntersectionOfLineAndCircle(polylinesSingle, usersLat, usersLon, 2.0)
+        var userOnRoute = emptyArray<Array<LatLng>>()
+        if (intersectionsLists.size == 1) {
+            userOnRoute[0] = intersectionsLists[0].toTypedArray()
+        }
+        else if (intersectionsLists.size > 1 ){
+            userOnRoute = findClosestPoinToPoint(latestLocation, intersectionsLists)
+        }
+        else{
+            //do again or give up
+        }
+        return userOnRoute
+    }
+
+    private fun findClosestPoinToPoint(pointA: LatLng, pointsList: List<List<LatLng>>): Array<Array<LatLng>> {
+        val closestPoint = emptyArray<Array<LatLng>>()
+        closestPoint.plus(arrayOf(pointsList[0][0], pointsList[0][1]))
+        for (pointsPair in pointsList){
+            val previousDistance = distanceBetweenPoints(pointA, closestPoint[0][0])
+            val newDistance = distanceBetweenPoints(pointA, pointsPair[0])
+            if (newDistance < previousDistance){
+                closestPoint[0] = pointsPair.toTypedArray()
+            }
+        }
+        return closestPoint
+    }
+
+    private fun distanceBetweenPoints (pointA: LatLng, pointB: LatLng): Float{
+        val locationA = Location("locationA")
+        locationA.latitude = pointA.latitude
+        locationA.longitude = pointA.longitude
+        val locationB = Location("locationB")
+        locationB.latitude = pointB.latitude
+        locationB.longitude = pointB.longitude
+        return locationA.distanceTo(locationB)
+    }
+
+    private fun findIntersectionOfLineAndCircle(polylines: List<LatLng>, usersLat: Double, usersLon: Double, r: Double): List<List<LatLng>> {
+        //TODO intersect just sector of a line
+        //TODO round values of LatLng
+        val intersections = emptyList<List<LatLng>>() // [n][0]: point of intersection, [n][1]: point on polyline before intersection
+        for (i in 0..(polylines.size-2)) {
+            val x1 = polylines[i].latitude
+            val y1 = polylines[i].longitude
+            val x2 = polylines[i + 1].latitude
+            val y2 = polylines[i + 1].longitude
+            val a = usersLat
+            val b = usersLon
+            val t = if ((y2 - y1) != 0.0) {
+                (x2 - x1) / (y2 - y1)
+            } else {
+                0.0
+            }
+            val d = -a.pow(2.0) + 2 * a * b * t - 2 * a * y1 * t + 2 * a * x1 - b.pow(2.0) * t.pow(2.0) + 2 * b * y1 * t.pow(2.0) - 2 * b * t * x1 - y1.pow(2.0) * t.pow(2.0) + 2 * y1 * t * x1 + r.pow(2.0) * t.pow(2.0) + r.pow(2.0) - x1.pow(2.0)
+
+            if (d >= 0) {
+                val z = (-sqrt(
+                        -a.pow(2.0) + 2 * a * b * t - 2 * a * y1 * t + 2 * a * x1 - b.pow(2.0) * t.pow(2.0) + 2 * b * y1 * t.pow(2.0) - 2 * b * t * x1 - y1.pow(2.0) * t.pow(2.0) + 2 * y1 * t * x1 + r.pow(2.0) * t.pow(2.0) + r.pow(2.0) - x1.pow(2.0)) + a * t + b + y1 * t.pow(2.0) - t * x1) / (
+                        t.pow(2.0) + 1)
+                val x3 = (z - y1) * t + x1
+                val z2 = (sqrt(
+                        -a.pow(2.0) + 2 * a * b * t - 2 * a * y1 * t + 2 * a * x1 - b.pow(2.0) * t.pow(2.0) + 2 * b * y1 * t.pow(2.0) - 2 * b * t * x1 - y1.pow(2.0) * t.pow(2.0) + 2 * y1 * t * x1 + r.pow(2.0) * t.pow(2.0) + r.pow(2.0) - x1.pow(2.0)) + a * t + b + y1 * t.pow(2.0) - t * x1) / (
+                        t.pow(2.0) + 1)
+                val x4 = (z2 - y1) * t + x1
+
+                if (z == z2 && x3 == x4) {
+                    intersections.plus(listOf(LatLng(z, x3), polylines[i]))
+                } else {
+                    intersections.plus(listOf(LatLng(z, x3), polylines[i]))
+                    intersections.plus(listOf(LatLng(z2, x4), polylines[i]))
+                }
+            }
+        }
+        return intersections
+    }
+    fun test(polylinesList: ArrayList<ArrayList<LatLng>>){
+        val test = findUserOnRoute(userCurrentLocation.value!!.latitude, userCurrentLocation.value!!.longitude, latestPointOnRoute, polylinesList)
     }
 
 }
